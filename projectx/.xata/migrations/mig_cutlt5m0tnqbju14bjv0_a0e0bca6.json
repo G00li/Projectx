@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlt5m0tnqbju14bjv0",
+  "parentID": "mig_cutlqucfbbqjrf2nsb9g",
+  "checksum": "1:a0e0bca69782235b4b45294337389bae6479c726222c4cef8d243e08c42d36ce",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "duration",
+        "oldName": "Duracao",
+        "table": "posts"
+      }
+    }
+  ]
+}

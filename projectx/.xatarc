@@ -1,5 +1,5 @@
 {
-  "databaseURL": "https://Leandro-s-workspace-01bobu.eu-central-1.xata.sh/db/projectx",
+  "databaseURL": "https://Leandro-s-workspace-01bobu.eu-central-1.xata.sh/db/projectx:main",
   "codegen": {
     "output": "src/xata.ts"
   }

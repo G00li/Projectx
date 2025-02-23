@@ -1,0 +1,16 @@
+{
+  "id": "mig_cutlc2jmb63o7mcm6e30",
+  "parentID": "mig_cutlbr4fbbqjrf2nsb30",
+  "checksum": "1:cd18c51873ccbf70cfb7f0cf9c1418ebffc9e78b4a676bb084e9f8dc737e66dc",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Duracao",
+          "type": "text"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

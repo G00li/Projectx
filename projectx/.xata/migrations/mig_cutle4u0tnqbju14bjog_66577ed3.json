@@ -1,0 +1,13 @@
+{
+  "id": "mig_cutle4u0tnqbju14bjog",
+  "parentID": "mig_cutld93mb63o7mcm6e50",
+  "checksum": "1:66577ed31320741182dfe775f6803952a0068e25ba27f3894280a2b60e5f252f",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "Id",
+        "table": "posts"
+      }
+    }
+  ]
+}

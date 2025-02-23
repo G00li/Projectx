@@ -1,0 +1,17 @@
+{
+  "id": "mig_cutld93mb63o7mcm6e50",
+  "parentID": "mig_cutlcou0tnqbju14bjng",
+  "checksum": "1:e58c174da8840d572d1d9c8e6578adbf1e8082198db9fe73e7b71993b46b47be",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Id",
+          "type": "int",
+          "unique": true
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlqou0tnqbju14bju0",
+  "parentID": "mig_cutlqlcfbbqjrf2nsb7g",
+  "checksum": "1:a7b12914d3c73cef202c6eb7064bdfb0375442d9b8ba6161bacede6e3d1b374f",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "language",
+        "oldName": "Linguagem",
+        "table": "posts"
+      }
+    }
+  ]
+}

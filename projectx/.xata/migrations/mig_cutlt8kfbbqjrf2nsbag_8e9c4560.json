@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlt8kfbbqjrf2nsbag",
+  "parentID": "mig_cutlt5m0tnqbju14bjv0",
+  "checksum": "1:8e9c45602d6ef8cda44e05b14fa883b2d0a43deb4f7f5d56301a5822946d615a",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "repoUrl",
+        "oldName": "Repositorio",
+        "table": "posts"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "mig_cutlbdjmb63o7mcm6e00",
+  "parentID": "mig_cutlb1cfbbqjrf2nsb20",
+  "checksum": "1:8debe1910a59b0d4e7517e66974173cfa4bd59a26018ab5a12de0286e461e7de",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Descricao",
+          "type": "text"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

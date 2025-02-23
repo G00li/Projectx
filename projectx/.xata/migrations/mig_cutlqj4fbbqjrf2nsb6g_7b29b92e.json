@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlqj4fbbqjrf2nsb6g",
+  "parentID": "mig_cutle4u0tnqbju14bjog",
+  "checksum": "1:7b29b92e21b8393e203ad79938ee647a4ff09f9d167acc57255dc2c540ce7d4d",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "description",
+        "oldName": "Descricao",
+        "table": "posts"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlqucfbbqjrf2nsb9g",
+  "parentID": "mig_cutlqrcfbbqjrf2nsb8g",
+  "checksum": "1:b3a73f77ba614e04c655a6e268c191959e1318ea3ab327ba386fcd33427a654c",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "createdAt",
+        "oldName": "Criacao",
+        "table": "posts"
+      }
+    }
+  ]
+}

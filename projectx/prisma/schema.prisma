@@ -28,6 +28,6 @@ model Post {
   language    String
   repoUrl     String
   duration    String
-  stars       Int      @default(0)
+  stars       Int      @default(1)
   createdAt   DateTime @default(now())
 }

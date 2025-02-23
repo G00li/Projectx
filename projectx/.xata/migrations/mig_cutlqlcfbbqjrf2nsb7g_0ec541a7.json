@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlqlcfbbqjrf2nsb7g",
+  "parentID": "mig_cutlqj4fbbqjrf2nsb6g",
+  "checksum": "1:0ec541a7b260e8e3aa83b5e6b38a72a861701d212daea09dedfd02be345278b2",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "title",
+        "oldName": "Title",
+        "table": "posts"
+      }
+    }
+  ]
+}

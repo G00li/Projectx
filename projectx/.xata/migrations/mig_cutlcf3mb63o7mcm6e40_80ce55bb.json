@@ -1,0 +1,18 @@
+{
+  "id": "mig_cutlcf3mb63o7mcm6e40",
+  "parentID": "mig_cutlc2jmb63o7mcm6e30",
+  "checksum": "1:80ce55bbe9994427f6887f2ec8becb3b0d4ed3ec49af58b4b18f521cb15edc22",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Estrelas",
+          "type": "int",
+          "notNull": true,
+          "defaultValue": "1"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}
