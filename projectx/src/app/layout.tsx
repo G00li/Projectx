@@ -1,7 +1,10 @@
+"use client"
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar"
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,10 +16,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Projeto X",
-  description: "Compartilhe seu projeto",
-};
+// export const metadata: Metadata = {
+//   title: "Projeto X",
+//   description: "Compartilhe seu projeto",
+// };
 
 export default function RootLayout({
   children,
@@ -28,10 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased  `}
       >
-        <Navbar />
-        <div className= "px-5">
-          {children}
-        </div>
+        <SessionProvider>
+          <Navbar />
+          <div className= "px-5">
+            {children}
+          </div>
+        </SessionProvider>
       </body>
     </html>
   );
