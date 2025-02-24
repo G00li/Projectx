@@ -15,12 +15,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Criar post no PostgreSQL usando Prisma
     const post = await prisma.post.create({
       data: {
-        userId: data.userId, // Adicionando userId que é obrigatório
+        userId: data.userId,
         title: data.title,
         description: data.description,
         language: data.language,
-        repoUrl: data.repoUrl, // Adicionando repoUrl que é obrigatório
-        duration: data.duration, // Adicionando duration que é obrigatório
+        repoUrl: data.repoUrl,
+        duration: data.duration, 
         stars: data.stars,
         createdAt: new Date(),
       },

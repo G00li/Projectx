@@ -7,5 +7,5 @@ export interface PostData {
   repoUrl: string;
   duration: string;
   stars: number;
-  createdAt: Date;
+  createdAt?: Date;
 }
