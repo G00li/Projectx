@@ -8,21 +8,23 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  birthDate DateTime?
-  address   String?
-  github    String?
-  linkedin  String?
-  posts     Post[]
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String?
+  birthDate     DateTime?
+  address       String?
+  github        String?  // Mantido como opcional
+  linkedin      String?  // Mantido como opcional
+  posts         Post[]
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime @default(now())
 }
 
 model Post {
   id          String   @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   description String
   language    String
@@ -30,4 +32,29 @@ model Post {
   duration    String
   stars       Int      @default(1)
   createdAt   DateTime @default(now())
+}
+
+// Modelos necessários para autenticação com NextAuth
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String  @unique
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  id_token          String?
+  scope             String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
