@@ -15,8 +15,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/pages/login");
-    } // Faltava o fechamento do if
-  }, [session, status, router]); // Também falta fechar o useEffect
+    }
+  }, [session, status, router]);
 
   if (status === "loading") {
     return <p className="text-white text-center mt-20">Carregando...</p>;

@@ -1,30 +1,29 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("XATA_DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  name          String?
-  birthDate     DateTime?
-  address       String?
-  github        String?  // Mantido como opcional
-  linkedin      String?  // Mantido como opcional
-  posts         Post[]
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime @default(now())
+  id        String    @id
+  email     String    @unique
+  name      String?
+  birthDate DateTime?
+  address   String?
+  github    String?
+  linkedin  String?
+  createdAt DateTime  @default(now())
+  accounts  Account[]
+  posts     Post[]
+  sessions  Session[]
 }
 
 model Post {
-  id          String   @id @default(uuid())
+  id          String   @id
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   description String
   language    String
@@ -32,12 +31,11 @@ model Post {
   duration    String
   stars       Int      @default(1)
   createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Modelos necessários para autenticação com NextAuth
-
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id
   userId            String
   type              String
   provider          String
@@ -52,7 +50,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id
   sessionToken String   @unique
   userId       String
   expires      DateTime
