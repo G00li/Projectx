@@ -1,18 +1,11 @@
-// import { useSession } from "next-auth/react";
+import AuthWrapper from "@/components/AuthWrapper";
 
-// const ProfilePage = () => {
-//   const { data: session } = useSession();
+const Profile = () => {
+  return (
+    <AuthWrapper>
+      <h1>Página do Perfil</h1>
+    </AuthWrapper>
+  );
+};
 
-//   if (!session) {
-//     return <div>Carregando...</div>;
-//   }
-
-//   return (
-//     <div>
-//       <h1>Bem-vindo, {session.user.name}</h1>
-//       <p>ID do usuário: {session.user.id}</p> {/* Aqui o ID estará disponível */}
-//     </div>
-//   );
-// };
-
-// export default ProfilePage;
+export default Profile;

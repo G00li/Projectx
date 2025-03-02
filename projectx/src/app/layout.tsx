@@ -1,11 +1,10 @@
-"use client"
+"use client";
 
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar"
+import Navbar from "../components/Navbar";
 import { SessionProvider } from "next-auth/react";
-import BemVindo from "../components/BemVindo"
+import AuthWrapper from "../components/AuthWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,27 +16,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// export const metadata: Metadata = {
-//   title: "Projeto X",
-//   description: "Compartilhe seu projeto",
-// };
-
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased  `}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SessionProvider>
-          <Navbar />
-          <div className= "px-5">
-            <BemVindo />
-            {children}
-          </div>
+          <AuthWrapper>
+            <Navbar />
+            <div className="px-5">{children}</div>
+          </AuthWrapper>
         </SessionProvider>
       </body>
     </html>
