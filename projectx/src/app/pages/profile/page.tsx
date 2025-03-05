@@ -18,22 +18,38 @@ const Profile = () => {
     linkedin: "",
   });
 
+  const [loading, setLoading] = useState(false); 
   useEffect(() => {
-    if (session?.user) {
-      setUserData({
-        name: session.user.name || "",
-        email: session.user.email || "",
-        image: session.user.image || "",
-        birthDate: "",
-        address: "",
-        github: "",
-        linkedin: "",
-      });
-    }
-  }, [session]);
+    const fetchUserProfile = async () => {
+      if (status==="authenticated" && session?.user?.email) {
+        try {
+          const { data } = await axios.get(`/api/profile/get?email=${session.user.email}`);
+          const formattedDate = data.birthDate ? new Date(data.birthDate).toISOString().split("T")[0] : "";
+          setUserData({
+            name: data.name || "",
+            email: data.email || session.user.email || "",
+            image: data.image || "/icon/profile-icon.svg",
+            birthDate: formattedDate || "",
+            address: data.address || "",
+            github: data.github || "",
+            linkedin: data.linkedin || "",
+          });
+        } catch (error) {
+          console.error("Erro ao buscar perfil", error);
+        }
+        finally{
+          setLoading(false)
+        }
+      }
+    };
+    fetchUserProfile();
+  }, [status, session]);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    if (name === "email") return; 
+
     setUserData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -42,6 +58,7 @@ const Profile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true)
   
     try {
       await axios.put("/api/profile/put/", userData);
@@ -54,9 +71,12 @@ const Profile = () => {
       console.error("Erro ao atualizar perfil", error);
       alert("Ocorreu um erro ao atualizar o perfil.");
     }
+    finally{
+      setLoading(false)
+    }
   };
   
-  if (status === "loading") {
+  if (status === "loading" || loading) {
     return <p>Carregando...</p>; 
   }
 
@@ -87,7 +107,7 @@ const Profile = () => {
                 name="name"
                 value={userData.name}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-black"
               />
             </div>
 
@@ -101,7 +121,7 @@ const Profile = () => {
                 name="email"
                 value={userData.email}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-black"
                 disabled
               />
             </div>
@@ -116,7 +136,7 @@ const Profile = () => {
                 name="birthDate"
                 value={userData.birthDate}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-black"
               />
             </div>
 
@@ -130,7 +150,7 @@ const Profile = () => {
                 name="address"
                 value={userData.address}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-black"
               />
             </div>
 
@@ -144,7 +164,7 @@ const Profile = () => {
                 name="github"
                 value={userData.github}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-black"
               />
             </div>
 
@@ -158,7 +178,7 @@ const Profile = () => {
                 name="linkedin"
                 value={userData.linkedin}
                 onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-black"
               />
             </div>
 
@@ -166,8 +186,9 @@ const Profile = () => {
               <button
                 type="submit"
                 className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
+                disabled={loading}
               >
-                Atualizar Perfil
+                {loading ? "Atualizando..." : "Atualizar Perfil"}
               </button>
             </div>
           </form>

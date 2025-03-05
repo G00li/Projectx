@@ -1,27 +1,27 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '../../../../lib/prisma';
+import { NextResponse } from 'next/server';
 
-export async function GET(req: NextApiRequest, res: NextApiResponse) {
-  const { email } = req.query;
+export async function GET(req: Request) {
+  const { searchParams } = new URL (req.url)
+  const email = searchParams.get("email");
 
-  if (!email || typeof email !== 'string') {
-    return res.status(400).json({ message: 'Email é obrigatório.' });
+  if (!email) {
+    return NextResponse.json({message: "Email é obrigatório."}, {status: 400})
   }
 
   try {
     const userProfile = await prisma.user.findUnique({
-      where: {
-        email: email,
-      },
+      where: {email}
     });
 
     if (!userProfile) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
+      return NextResponse.json({message: "Usuário não encontrado"}, {status: 404})
+    
     }
 
-    return res.status(200).json(userProfile);
+    return NextResponse.json(userProfile);
   } catch (error) {
-    // Caso haja algum erro na consulta
-    return res.status(500).json({ message: 'Erro ao consultar o perfil do usuário.', error });
+    return NextResponse.json({ message: "Erro ao consultar o perfil do usuário.", error}, {status: 500} );
   }
 }
