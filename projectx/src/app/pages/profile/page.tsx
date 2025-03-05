@@ -77,7 +77,7 @@ const Profile = () => {
   };
   
   if (status === "loading" || loading) {
-    return <p>Carregando...</p>; 
+    return <p>AloProfile/page.tsx-linha80...</p>; 
   }
 
   return (

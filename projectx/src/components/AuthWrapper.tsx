@@ -15,7 +15,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [status, router]);
 
   if (status === "loading") {
-    return <p>Carregando...</p>; // Adicione um spinner aqui se quiser
+    return <p>AuthWrapper.tsx- linha-80...</p>;
   }
 
   return <>{children}</>;
