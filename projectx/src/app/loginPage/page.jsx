@@ -23,12 +23,21 @@ const LoginPage = () => {
           <>
             <h2 className="text-2xl font-bold mb-6 text-white">Faça login</h2>
             <button
-              onClick={() => signIn(undefined, { callbackUrl: "/" })}
+              onClick={() => signIn("github", { callbackUrl: "/" })}
               className="w-full flex items-center justify-center px-6 py-3 mb-4 text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition"
             >
               <img src="/icon/Github-icon.svg" alt="GitHub Logo" className="w-6 h-6 mr-2" />
-              Escolher método de login
+              Entrar com GitHub
             </button>
+
+            <button
+              onClick={() => signIn("google", { callbackUrl: "/" })}
+              className="w-full flex items-center justify-center px-6 py-3 mb-4 text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition"
+            >
+              <img src="/icon/Gmail-icon.svg" alt="Google Logo" className="w-6 h-6 mr-2" />
+              Entrar com Google
+            </button>
+
           </>
         )}
       </div>
