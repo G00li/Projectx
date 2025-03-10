@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { PostData } from "@/types/Post";
+import { useRouter } from "next/navigation";
+import { Post } from "@prisma/client";
 import { createPost } from "@/services/postService";
 
+
 export default function CreatePost() {
-  const [postData, setPostData] = useState<Omit<PostData, "createdAt">>({
+  const router = useRouter();
+  const [postData, setPostData] = useState<Omit<Post, "createdAt">>({
     id: "",
     userId: "",
     title: "",
@@ -18,19 +21,14 @@ export default function CreatePost() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Criar o objeto newPost com a data de criação no momento da submissão
-    const createdAt = new Date();  // A data é definida aqui no momento da submissão
-    const newPost = { 
-      ...postData, 
-      createdAt: createdAt, // Passando o valor de createdAt como o momento exato da submissão
-    };
-
     try {
-      const response = await createPost(newPost);
-      console.log("Post criado:", response);
+      await createPost(postData);
+      console.log('Post criado com sucesso');
+      router.push('/posts');
+      router.refresh();
     } catch (error) {
-      console.error("Erro ao criar o post:", error);
+      console.error("Erro:", error);
+      alert('Erro ao criar post: ');
     }
   };
 
@@ -72,7 +70,7 @@ export default function CreatePost() {
           onChange={(e) => setPostData({ ...postData, duration: e.target.value })}
           className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
         />
-        <button 
+        <button
           type="submit"
           className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200"
         >
