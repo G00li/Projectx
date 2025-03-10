@@ -54,7 +54,7 @@ export default function Posts() {
     };
     
     fetchPosts();
-  }, []);
+  }, [CACHE_KEY, CACHE_DURATION]);
 
 
   return (

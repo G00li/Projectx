@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import AuthWrapper from "@/components/AuthWrapper";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 
 const Profile = () => {
   const { data: session, status } = useSession();
@@ -89,10 +90,12 @@ const Profile = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Foto de perfil */}
             <div className="flex justify-center">
-              <img
+              <Image
                 src={userData.image || "/icon/profile-icon.svg"}
                 alt="Foto de perfil"
                 className="w-32 h-32 object-cover rounded-full border-4 border-gray-300"
+                width={128}
+                height={128}
               />
             </div>
 
