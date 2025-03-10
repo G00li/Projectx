@@ -1,19 +1,61 @@
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import { getPosts } from "@/services/postService";
+
+// export default function Posts() {
+//   const [posts, setPosts] = useState([]);
+
+//   useEffect(() => {
+//     const fetchPosts = async () => {
+//       const result = await getPosts();
+//       setPosts(result);
+//     };
+    
+//     fetchPosts();
+//   }, []);
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { getPosts } from "@/services/postService";
 
+// ... existing code ...
+
 export default function Posts() {
   const [posts, setPosts] = useState([]);
+  const CACHE_KEY = 'cached_posts';
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
 
   useEffect(() => {
     const fetchPosts = async () => {
+      // Verifica se existe cache
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        const isExpired = Date.now() - timestamp > CACHE_DURATION;
+        
+        // Se o cache não estiver expirado, use os dados do cache
+        if (!isExpired) {
+          setPosts(data);
+          return;
+        }
+      }
+
+      // Se não houver cache ou estiver expirado, busca novos dados
       const result = await getPosts();
       setPosts(result);
+
+      // Salva os novos dados no cache
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: result,
+        timestamp: Date.now()
+      }));
     };
     
     fetchPosts();
   }, []);
+
 
   return (
     <div className="container mx-auto p-4">
@@ -36,3 +78,4 @@ export default function Posts() {
     </div>
   );
 }
+

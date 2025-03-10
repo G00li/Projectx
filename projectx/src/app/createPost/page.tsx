@@ -23,8 +23,8 @@ export default function CreatePost() {
     e.preventDefault();
     try {
       await createPost(postData);
-      console.log('Post criado com sucesso');
-      router.push('/posts');
+      // console.log('Post criado com sucesso');
+      // router.push('/posts');
       router.refresh();
     } catch (error) {
       console.error("Erro:", error);
@@ -73,6 +73,7 @@ export default function CreatePost() {
         <button
           type="submit"
           className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-all duration-200"
+          onClick={()=> router.push('/viewPost/')}
         >
           Create a new post
         </button>
