@@ -1,26 +1,7 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { getPosts } from "@/services/postService";
-
-// export default function Posts() {
-//   const [posts, setPosts] = useState([]);
-
-//   useEffect(() => {
-//     const fetchPosts = async () => {
-//       const result = await getPosts();
-//       setPosts(result);
-//     };
-    
-//     fetchPosts();
-//   }, []);
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { getPosts } from "@/services/postService";
-
-// ... existing code ...
 
 export default function Posts() {
   const [posts, setPosts] = useState([]);
