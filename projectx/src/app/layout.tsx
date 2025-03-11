@@ -48,7 +48,8 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
         <main 
           className="flex-1 p-4" 
           style={{ marginLeft: `${sidebarWidth}px` }}
-        >
+        > 
+        //TODO - SideBar so pode aparecer se o usuario estiver logado!
           {children}
         </main>
       </div>
