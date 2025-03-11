@@ -21,6 +21,8 @@ model User {
   accounts      Account[]
   posts         Post[]
   sessions      Session[]
+  cookieConsent  Boolean @default(false)
+  cookieConsentAt DateTime?
 }
 
 model Post {

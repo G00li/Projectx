@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 import { SessionProvider } from "next-auth/react";
 import AuthWrapper from "../components/AuthWrapper";
+import CookieConsent from "@/components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AuthWrapper>
             <Navbar />
             <div className="px-5">{children}</div>
+            <CookieConsent />
           </AuthWrapper>
         </SessionProvider>
       </body>
