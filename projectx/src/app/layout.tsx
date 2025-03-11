@@ -6,6 +6,8 @@ import Navbar from "../components/Navbar";
 import { SessionProvider } from "next-auth/react";
 import AuthWrapper from "../components/AuthWrapper";
 import CookieConsent from "@/components/CookieConsent";
+import SideBar from "@/components/SideBar";
+import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,12 +27,32 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SessionProvider>
           <AuthWrapper>
-            <Navbar />
-            <div className="px-5">{children}</div>
-            <CookieConsent />
+            <SidebarProvider>
+              <RootLayoutContent>{children}</RootLayoutContent>
+            </SidebarProvider>
           </AuthWrapper>
         </SessionProvider>
       </body>
     </html>
+  );
+}
+
+function RootLayoutContent({ children }: { children: React.ReactNode }) {
+  const { sidebarWidth } = useSidebar();
+
+  return (
+    <>
+      <Navbar />
+      <div className="flex">
+        <SideBar />
+        <main 
+          className="flex-1 p-4" 
+          style={{ marginLeft: `${sidebarWidth}px` }}
+        >
+          {children}
+        </main>
+      </div>
+      <CookieConsent />
+    </>
   );
 }

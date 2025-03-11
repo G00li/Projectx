@@ -4,46 +4,49 @@ import Link from "next/link";
 import { NAV_LINKS } from "@/constants";
 import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useSidebar } from '@/context/SidebarContext';
 
 const Navbar = () => {
   const { data: session } = useSession();
+  const { toggleSidebar } = useSidebar();
 
   return (
     <nav className="flex justify-between items-center max-container padding-container relative z-30 py-3 px-5 border-b border-gray-700">
-      {/* Logo */}
-      <Link href="/">
-        <Image src="/logo/logo-gray.svg" alt="logo" width={40} height={40} />
-      </Link>
+      <div className="flex items-center gap-4">
+        <Link href="/" className="flex items-center">
+          <Image src="/logo/logo-gray.svg" alt="logo" width={40} height={40} className="ml-2"/>
+          <span className="text-gray-200 font-bold text-xl">ProjetoX</span>
+        </Link>
+        <button
+          onClick={toggleSidebar}
+          className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-white"
+        >
+          <Image 
+            src="/icon/menu.svg" 
+            alt="Toggle Sidebar" 
+            width={24} 
+            height={24}
+          />
+        </button>
+      </div>
 
       {/* Usuário autenticado */}
       {session ? (
 
         <div className="flex items-center gap-4">
-          <ul className="hidden h-full gap-12 lg:flex items-center mr-10">
-            {NAV_LINKS.map((link) => (
-              <li key={link.key}>
-                <Link
-                  href={link.href}
-                  className="flex items-center gap-2 text-gray-50 cursor-pointer pb-1.5 transition-all hover:font-bold"
-                >
-                  <Image src={link.icon} alt={`${link.label} icon`} width={20} height={20} />
-                  <span className="hidden sm:block">{link.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          <span className="text-gray-200">{session.user?.name}</span>
-          <Image
-            src={session.user?.image || "/icon/profile-icon.svg"}
-            alt="User Profile"
-            width={32}
-            height={32}
-            className="rounded-full"
-          />
+          <Link href="../pages/profile" className="flex items-center gap-2 cursor-pointer mr-5">
+            <span className="text-gray-200 pb-1.5 transition-all hover:font-bold">{session.user?.name}</span>
+            <Image
+              src={session.user?.image || "/icon/profile-icon.svg"}
+              alt="User Profile"
+              width={42}
+              height={42}
+              className="rounded-full ml-2"
+            />
+          </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer w-20"
           >
             Sair
           </button>

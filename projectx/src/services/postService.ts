@@ -1,18 +1,3 @@
-// export const getPosts = async () => {
-//     const response = await fetch('/api/posts', {
-//       method: 'GET',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     });
-  
-//     if (!response.ok) {
-//       throw new Error('Erro ao buscar posts');
-//     }
-  
-//     return response.json();
-// };
-
 export const getPosts = async () => {
     try {
         console.log('Iniciando requisição para /api/posts');
@@ -61,5 +46,29 @@ export const getPosts = async () => {
     }
   
     return response.json();
+};
+
+export const deletePost = async (postId: string) => {
+  const response = await fetch(`/api/posts/${postId}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Erro ao deletar post');
+  }
+  return await response.json();
+};
+
+export const updatePost = async (postId: string, data: any) => {
+  const response = await fetch(`/api/posts/${postId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Erro ao atualizar post');
+  }
+  return await response.json();
 };
 
