@@ -63,7 +63,7 @@ const Profile = () => {
   
     try {
       await axios.put("/api/profile/put/", userData);
-      alert("Perfil atualizado com sucesso!");
+      // alert("Perfil atualizado com sucesso!");
   
       const { data } = await axios.get(`/api/profile/get?email=${userData.email}`);
       setUserData(data);
@@ -78,7 +78,7 @@ const Profile = () => {
   };
   
   if (status === "loading" || loading) {
-    return <p>AloProfile/page.tsx-linha80...</p>; 
+    return <p>Atualizando perfil...</p>; 
   }
 
   return (

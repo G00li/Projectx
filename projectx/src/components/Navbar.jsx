@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { NAV_LINKS } from "@/constants";
 import Image from "next/image";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useSidebar } from '@/context/SidebarContext';
 
 const Navbar = () => {
@@ -17,7 +16,8 @@ const Navbar = () => {
           <Image src="/logo/logo-gray.svg" alt="logo" width={40} height={40} className="ml-2"/>
           <span className="text-gray-200 font-bold text-xl">ProjetoX</span>
         </Link>
-        <button
+        {session && (
+          <button
           onClick={toggleSidebar}
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-white"
         >
@@ -28,6 +28,7 @@ const Navbar = () => {
             height={24}
           />
         </button>
+        )}
       </div>
 
       {/* Usuário autenticado */}

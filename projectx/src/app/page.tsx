@@ -1,8 +1,15 @@
-export default function HomePage() {
-  console.log("XATA_API_KEY:", process.env.XATA_API_KEY);
+"use client";
+
+import SideBar from "@/components/SideBar";
+import { useSidebar } from "@/context/SidebarContext";
+
+export default function HomePageContent({ children }: Readonly<{ children: React.ReactNode }>) {
+  const { sidebarWidth } = useSidebar();
+
   return (
-    <h1>Olá Mundo</h1>
-    
+    <>
+      <h1>Olá Mundo</h1>
+    </>    
   );
 
 }

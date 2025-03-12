@@ -3,11 +3,12 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import AuthWrapper from "../components/AuthWrapper";
 import CookieConsent from "@/components/CookieConsent";
-import SideBar from "@/components/SideBar";
 import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
+import SideBar from "@/components/SideBar";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,19 +40,20 @@ export default function RootLayout({
 
 function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const { sidebarWidth } = useSidebar();
+  const {status} = useSession();
+  const isAuthenticated = status === "authenticated";
 
   return (
     <>
       <Navbar />
       <div className="flex">
-        <SideBar />
+        {isAuthenticated && <SideBar />}
         <main 
-          className="flex-1 p-4" 
-          style={{ marginLeft: `${sidebarWidth}px` }}
-        > 
-        //TODO - SideBar so pode aparecer se o usuario estiver logado!
+          className="flex-1 p-4"
+          style={{ marginLeft: isAuthenticated ? `${sidebarWidth}px` : "2" }}
+        >
           {children}
-        </main>
+        </main> 
       </div>
       <CookieConsent />
     </>
