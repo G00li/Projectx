@@ -25,7 +25,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <title>Projeto X</title>
+      </head>
+      
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <script defer src="https://cloud.umami.is/script.js" data-website-id="32bcc95d-cdca-4f1c-8025-ebc8ff9b0234"></script>
         <SessionProvider>
           <AuthWrapper>
             <SidebarProvider>
