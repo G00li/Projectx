@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef, useState } from 'react';
 import { useSidebar } from '@/context/SidebarContext';
 import { usePathname } from 'next/navigation';
+import { signOut } from "next-auth/react";
 
 const SideBar = () => {
   const { sidebarWidth, setSidebarWidth } = useSidebar();
@@ -37,7 +38,7 @@ const SideBar = () => {
         className="flex flex-col h-[calc(100vh-61px)] fixed left-0 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border-r border-white/10 backdrop-blur-lg shadow-xl will-change-[width]"
         style={{ width: `${sidebarWidth}px` }}
       >
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full flex flex-col">
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
           
           <ul className="flex flex-col items-center gap-4 w-full pt-8">
@@ -85,9 +86,52 @@ const SideBar = () => {
                     </span>
                   </Link>
                 </li>
+                
               );
             })}
           </ul>
+          
+          {/* Botão de Sair */}
+          <div className="mt-auto mb-4 w-full px-2">
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className={`w-full flex items-center cursor-pointer rounded-xl transition-all duration-300
+                ${sidebarWidth >= 160 
+                  ? 'justify-start px-4 py-3 bg-red-500/20 hover:bg-red-500/30' 
+                  : 'w-12 h-12 flex items-center justify-center'
+                }
+              `}
+            >
+              <div 
+                className={`relative flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300
+                  ${sidebarWidth >= 160 
+                    ? '' 
+                    : 'bg-red-500/20 hover:bg-red-500/30'
+                  }
+                `}
+              >
+                <div className="flex items-center justify-center w-6 h-6">
+                  <Image
+                    src="/icon/logout.svg"
+                    alt="Logout"
+                    width={24}
+                    height={24}
+                    className="transition-transform duration-300 scale-100 text-red-500"
+                  />
+                </div>
+              </div>
+              <span 
+                className={`text-red-500 text-sm whitespace-nowrap transition-all duration-300 overflow-hidden
+                  ${sidebarWidth >= 160 
+                    ? 'opacity-100 w-auto max-w-[150px]' 
+                    : 'opacity-0 w-0 max-w-0'
+                  }
+                `}
+              >
+                Sair
+              </span>
+            </button>
+          </div>
 
           {/* Barra de redimensionamento com efeito hover */}
           <div

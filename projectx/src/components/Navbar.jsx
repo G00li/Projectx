@@ -45,12 +45,6 @@ const Navbar = () => {
               className="rounded-full ml-2"
             />
           </Link>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition cursor-pointer w-20"
-          >
-            Sair
-          </button>
         </div>
       ) : (
         <Link

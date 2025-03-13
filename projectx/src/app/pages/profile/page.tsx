@@ -128,15 +128,36 @@ const Profile = () => {
                     <label htmlFor="email" className="block text-sm font-medium text-white/80">
                       Email
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={userData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed"
-                      disabled
-                    />
+                    <div className="relative group">
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={userData.email}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed pr-10"
+                        disabled
+                      />
+                      <svg
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                        />
+                      </svg>
+                      <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-3 py-1 rounded-lg text-sm 
+                        opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+                        Não é possível alterar o email de acesso
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Campo Data de Nascimento */}
