@@ -12,8 +12,8 @@ export default function CreatePost() {
   const { data: session } = useSession();
 
   const [postData, setPostData] = useState<Omit<Post, "createdAt">>({
-    id: crypto.randomUUID(), // Gerando um ID único
-    userId: session?.user?.id || "", // Pegando o ID do usuário da sessão
+    id: crypto.randomUUID(), 
+    userId: session?.user?.id || "", 
     title: "",
     description: "",
     language: "",
