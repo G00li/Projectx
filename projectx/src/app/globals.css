@@ -27,3 +27,23 @@ body * {
 .user-select-auto {
   user-select: auto;
 }
+
+/* Estilização do ícone do calendário para navegadores baseados em Webkit (Chrome, Safari, etc.) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(30%) sepia(30%) saturate(9%) hue-rotate(318deg) brightness(97%) contrast(92%);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+/* Para garantir que o texto da data também fique na cor correta */
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: white;
+}
+
+/* Para o placeholder quando nenhuma data está selecionada */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: white;
+}
