@@ -109,8 +109,15 @@ const Profile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Campo Nome */}
                   <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium text-white/80">
+                    <label htmlFor="name" className="text-sm font-medium text-white/80 flex items-center gap-2">
                       Nome
+                      <Image
+                        src="/icon/profile/name-icon.svg"
+                        alt="Nome"
+                        width={16}
+                        height={16}
+                        className="inline-block text-white/80"
+                      />
                     </label>
                     <input
                       type="text"
@@ -125,8 +132,15 @@ const Profile = () => {
 
                   {/* Campo Email */}
                   <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-white/80">
+                    <label htmlFor="email" className="text-sm font-medium text-white/80 flex items-center gap-2">
                       Email
+                      <Image
+                        src="/icon/profile/email-icon.svg"
+                        alt="Email"
+                        width={16}
+                        height={16}
+                        className="inline-block text-white/80"
+                      />
                     </label>
                     <div className="relative group">
                       <input
@@ -138,20 +152,15 @@ const Profile = () => {
                         className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed pr-10"
                         disabled
                       />
-                      <svg
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <Image
+                          src="/icon/profile/lock-icon.svg"
+                          alt="Bloqueado"
+                          width={20}
+                          height={20}
+                          className="opacity-50"
                         />
-                      </svg>
+                      </div>
                       <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-3 py-1 rounded-lg text-sm 
                         opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                         Não é possível alterar o email de acesso
@@ -162,8 +171,15 @@ const Profile = () => {
 
                   {/* Campo Data de Nascimento */}
                   <div className="space-y-2">
-                    <label htmlFor="birthDate" className="block text-sm font-medium text-white/80">
+                    <label htmlFor="birthDate" className="text-sm font-medium text-white/80 flex items-center gap-2">
                       Data de Nascimento
+                      <Image
+                        src="/icon/profile/calendar-icon.svg"
+                        alt="Calendário"
+                        width={16}
+                        height={16}
+                        className="inline-block text-white/80"
+                      />
                     </label>
                     <input
                       type="date"
@@ -171,14 +187,21 @@ const Profile = () => {
                       name="birthDate"
                       value={userData.birthDate}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white [color-scheme:dark]"
                     />
                   </div>
 
                   {/* Campo Endereço */}
                   <div className="space-y-2">
-                    <label htmlFor="address" className="block text-sm font-medium text-white/80">
+                    <label htmlFor="address" className=" text-sm font-medium text-white/80 flex items-center gap-2">
                       Endereço
+                      <Image
+                        src="/icon/profile/address-icon.svg"
+                        alt="Endereço"
+                        width={16}
+                        height={16}
+                        className="inline-block text-white/80"
+                      />
                     </label>
                     <input
                       type="text"
@@ -193,8 +216,15 @@ const Profile = () => {
 
                   {/* Campo GitHub */}
                   <div className="space-y-2">
-                    <label htmlFor="github" className="block text-sm font-medium text-white/80">
+                    <label htmlFor="github" className="text-sm font-medium text-white/80 flex items-center gap-2">
                       GitHub
+                      <Image
+                        src="/icon/profile/github-icon.svg"
+                        alt="GitHub"
+                        width={16}
+                        height={16}
+                        className="inline-block text-white/80"
+                      />
                     </label>
                     <input
                       type="text"
@@ -209,8 +239,15 @@ const Profile = () => {
 
                   {/* Campo LinkedIn */}
                   <div className="space-y-2">
-                    <label htmlFor="linkedin" className="block text-sm font-medium text-white/80">
+                    <label htmlFor="linkedin" className="text-sm font-medium text-white/80 flex items-center gap-2">
                       LinkedIn
+                      <Image
+                        src="/icon/profile/linkedin-icon.svg"
+                        alt="LinkedIn"
+                        width={16}
+                        height={16}
+                        className="inline-block text-white/80"
+                      />
                     </label>
                     <input
                       type="text"
