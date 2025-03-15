@@ -26,7 +26,7 @@ const LoginPage = () => {
               onClick={() => signIn("github", { callbackUrl: "/" })}
               className="w-full flex items-center justify-center px-6 py-3 mb-4 text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition"
             >
-              <img src="/icon/Github-icon.svg" alt="GitHub Logo" className="w-6 h-6 mr-2" />
+              <img src="/icon/login/Github-icon.svg" alt="GitHub Logo" className="w-6 h-6 mr-2" />
               Entrar com GitHub
             </button>
 
@@ -34,7 +34,7 @@ const LoginPage = () => {
               onClick={() => signIn("google", { callbackUrl: "/" })}
               className="w-full flex items-center justify-center px-6 py-3 mb-4 text-white bg-gray-800 rounded-lg hover:bg-gray-900 transition"
             >
-              <img src="/icon/Gmail-icon.svg" alt="Google Logo" className="w-6 h-6 mr-2" />
+              <img src="/icon/login/Gmail-icon.svg" alt="Google Logo" className="w-6 h-6 mr-2" />
               Entrar com Google
             </button>
 

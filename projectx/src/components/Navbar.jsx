@@ -30,7 +30,7 @@ const Navbar = () => {
             className="relative flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300 hover:bg-white/5"
           >
             <Image 
-              src="/icon/menu.svg" 
+              src="/icon/navBar/menu.svg" 
               alt="Toggle Sidebar" 
               width={24} 
               height={24}

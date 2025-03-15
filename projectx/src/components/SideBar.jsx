@@ -112,7 +112,7 @@ const SideBar = () => {
               >
                 <div className="flex items-center justify-center w-6 h-6">
                   <Image
-                    src="/icon/logout.svg"
+                    src="/icon/sidebar/logout.svg"
                     alt="Logout"
                     width={24}
                     height={24}
