@@ -28,7 +28,7 @@ export default function RootLayout({
       <head>
         <title>Projeto X</title>
       </head>
-      
+
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <script defer src="https://cloud.umami.is/script.js" data-website-id="32bcc95d-cdca-4f1c-8025-ebc8ff9b0234"></script>
         <SessionProvider>
@@ -54,7 +54,7 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
       <div className="flex">
         {isAuthenticated && <SideBar />}
         <main 
-          className="flex-1 p-4"
+          className="flex-1"
           style={{ marginLeft: isAuthenticated ? `${sidebarWidth}px` : "2" }}
         >
           {children}
