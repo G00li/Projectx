@@ -26,7 +26,7 @@ export default function CreatePost() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validação básica
+    // Validação básica se os campos obrigatórios estão preenchidos
     if (!postData.title || !postData.description || !postData.language) {
       alert('Por favor, preencha todos os campos obrigatórios');
       return;
@@ -62,7 +62,11 @@ export default function CreatePost() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 className={`w-8 h-8 transition-colors duration-200 ${
-                  star <= (hoveredStar || postData.stars)
+                  hoveredStar > 0
+                    ? star <= hoveredStar
+                      ? "fill-yellow-400"
+                      : "fill-gray-500"
+                    : star <= postData.stars
                     ? "fill-yellow-400"
                     : "fill-gray-500"
                 }`}
