@@ -4,17 +4,19 @@ import { authOptions } from "@/app/api/auth/auth.config";
 import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
-  req: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = params.id;
+
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!post) {
@@ -26,7 +28,7 @@ export async function DELETE(
     }
 
     await prisma.post.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Post deletado com sucesso" });
@@ -41,16 +43,15 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { params } = await context;
     const id = params.id;
+    
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
-    //FIXME - Atualiza o post corretamente porem gera erro no terminal. 
 
     const post = await prisma.post.findUnique({
       where: { id },
