@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Post } from "@prisma/client";
 import { createPost } from "@/services/postService";
 import { useSession } from "next-auth/react";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function CreatePost() {
   const router = useRouter();
@@ -22,23 +23,52 @@ export default function CreatePost() {
   });
 
   const [hoveredStar, setHoveredStar] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    // Validação dos campos obrigatórios usando toast
+    if (!postData.title) {
+      toast.error('Por favor, preencha o título do projeto');
+      setIsSubmitting(false);
+      return;
+    }
     
-    // Validação básica se os campos obrigatórios estão preenchidos
-    if (!postData.title || !postData.description || !postData.language) {
-      alert('Por favor, preencha todos os campos obrigatórios');
+    if (!postData.description) {
+      toast.error('Por favor, adicione uma descrição para o projeto');
+      setIsSubmitting(false);
+      return;
+    }
+    
+    if (!postData.language) {
+      toast.error('Por favor, informe a linguagem utilizada');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!postData.duration) {
+      toast.error('Por favor, informe a duração do projeto');
+      setIsSubmitting(false);
       return;
     }
 
     try {
-      await createPost(postData);
+      await toast.promise(
+        createPost(postData),
+        {
+          loading: 'Criando post...',
+          success: 'Post criado com sucesso! 🎉',
+          error: 'Erro ao criar post 😕',
+        }
+      );
       router.push('/viewPost/');
       router.refresh();
     } catch (error) {
       console.error("Erro:", error);
-      alert('Erro ao criar post: ' + error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -82,6 +112,7 @@ export default function CreatePost() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
+      <Toaster position="top-center"/>
       <div className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-6 lg:p-8 shadow-xl h-full">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-3">
@@ -105,7 +136,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, title: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    required
+                    
                   />
                 </div>
 
@@ -121,7 +152,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, language: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    required
+                    
                   />
                 </div>
 
@@ -136,7 +167,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, description: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white h-32"
-                    required
+                    
                   />
                 </div>
 
@@ -168,7 +199,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, duration: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    required
+                    
                   />
                 </div>
                 <div className="flex flex-1 md:col-span-2 items-center justify-center">
@@ -182,9 +213,20 @@ export default function CreatePost() {
                   className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-blue-500 
                   to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 
                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-                  transition-all duration-200 text-sm sm:text-base"
+                  transition-all duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
                 >
-                  Criar Post
+                  {isSubmitting ? (
+                    <span className="flex items-center justify-center space-x-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      <span>Criando...</span>
+                    </span>
+                  ) : (
+                    "Criar Post"
+                  )}
                 </button>
               </div>
             </form>
