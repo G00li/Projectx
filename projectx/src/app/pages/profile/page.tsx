@@ -10,6 +10,7 @@ import toast, {Toaster} from "react-hot-toast";
 
 const Profile = () => {
   const { data: session, status } = useSession();
+  const [isEditing, setIsEditing] = useState(false);
 
   const [userData, setUserData] = useState({
     name: "",
@@ -70,6 +71,7 @@ const Profile = () => {
           error: 'Erro ao atualizar perfil 😕',
         }
       );
+      setIsEditing(false);
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
     } finally {
@@ -86,7 +88,19 @@ const Profile = () => {
       <Toaster position="top-center"/>
       <div className="min-h-screen p-6 bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl">
-          <h1 className="text-4xl font-bold text-center mb-8 text-white/90 tracking-tight">Seu Perfil</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-bold text-white/90 tracking-tight">Bem vindo, {session?.user?.name}</h1>
+            {session?.user && !isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium 
+                hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                transition-all duration-200"
+              >
+                Editar Perfil
+              </button>
+            )}
+          </div>
 
           {session?.user ? (
             <div className="max-w-3xl mx-auto">
@@ -125,8 +139,12 @@ const Profile = () => {
                       name="name"
                       value={userData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white placeholder-gray-400"
+                      className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-white
+                        ${isEditing 
+                          ? 'bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
+                          : 'bg-gray-800/50 border border-gray-700 cursor-not-allowed opacity-75'}`}
                       placeholder="Seu nome completo"
+                      readOnly={!isEditing}
                     />
                   </div>
 
@@ -142,6 +160,8 @@ const Profile = () => {
                         className="inline-block text-white/80"
                       />
                     </label>
+
+                    {/* Campo Email */}
                     <div className="relative group">
                       <input
                         type="email"
@@ -149,7 +169,7 @@ const Profile = () => {
                         name="email"
                         value={userData.email}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/50 cursor-not-allowed pr-10"
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white/50 cursor-not-allowed pr-10"
                         disabled
                       />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -187,13 +207,17 @@ const Profile = () => {
                       name="birthDate"
                       value={userData.birthDate}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white [color-scheme:dark]"
+                      className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-white [color-scheme:dark]
+                        ${isEditing 
+                          ? 'bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
+                          : 'bg-gray-800/50 border border-gray-700 cursor-not-allowed opacity-75'}`}
+                      readOnly={!isEditing}
                     />
                   </div>
 
                   {/* Campo Endereço */}
                   <div className="space-y-2">
-                    <label htmlFor="address" className=" text-sm font-medium text-white/80 flex items-center gap-2">
+                    <label htmlFor="address" className="text-sm font-medium text-white/80 flex items-center gap-2">
                       Endereço
                       <Image
                         src="/icon/profile/address-icon.svg"
@@ -209,8 +233,12 @@ const Profile = () => {
                       name="address"
                       value={userData.address}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                      className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-white
+                        ${isEditing 
+                          ? 'bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
+                          : 'bg-gray-800/50 border border-gray-700 cursor-not-allowed opacity-75'}`}
                       placeholder="Seu endereço"
+                      readOnly={!isEditing}
                     />
                   </div>
 
@@ -232,8 +260,12 @@ const Profile = () => {
                       name="github"
                       value={userData.github}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                      className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-white
+                        ${isEditing 
+                          ? 'bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
+                          : 'bg-gray-800/50 border border-gray-700 cursor-not-allowed opacity-75'}`}
                       placeholder="Seu perfil do GitHub"
+                      readOnly={!isEditing}
                     />
                   </div>
 
@@ -255,33 +287,51 @@ const Profile = () => {
                       name="linkedin"
                       value={userData.linkedin}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                      className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-white
+                        ${isEditing 
+                          ? 'bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent' 
+                          : 'bg-gray-800/50 border border-gray-700 cursor-not-allowed opacity-75'}`}
                       placeholder="Seu perfil do LinkedIn"
+                      readOnly={!isEditing}
                     />
                   </div>
                 </div>
 
-                {/* Botão de Submit */}
-                <div className="mt-8 flex justify-center">
-                  <button
-                    type="submit"
-                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium 
-                    hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-                    disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[200px]"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center justify-center space-x-2">
-                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                        </svg>
-                        <span>Atualizando...</span>
-                      </span>
-                    ) : (
-                      "Atualizar Perfil"
-                    )}
-                  </button>
+                {/* Botões de ação */}
+                <div className="mt-8 flex justify-center gap-4">
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="px-8 py-3 bg-gray-500 text-white rounded-lg font-medium 
+                      hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 
+                      transition-all duration-200 min-w-[200px]"
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                  
+                  {isEditing && (
+                    <button
+                      type="submit"
+                      className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium 
+                      hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                      disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-w-[200px]"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center space-x-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                          </svg>
+                          <span>Salvando...</span>
+                        </span>
+                      ) : (
+                        "Salvar Alterações"
+                      )}
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
