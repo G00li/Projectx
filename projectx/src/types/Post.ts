@@ -1,3 +1,5 @@
+import { Post } from "@prisma/client";
+
 export interface PostData {
   id: string;
   userId: string;
@@ -8,4 +10,18 @@ export interface PostData {
   duration: string;
   stars: number;
   createdAt?: Date;
+}
+
+export interface PostWithUser extends Post {
+  user: {
+    name: string;
+    image?: string;
+  };
+}
+
+export interface PostCardProps {
+  post: PostWithUser;
+  onEdit?: (post: PostWithUser) => void;
+  onDelete?: (postId: string) => void;
+  canEdit?: boolean;
 }
