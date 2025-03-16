@@ -16,36 +16,51 @@ export default function Posts() {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const CACHE_KEY = 'cached_posts';
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos em milissegundos
+  const CACHE_DURATION = 5 * 1000; 
+  const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
+
+  const fetchPosts = async () => {
+    try {
+      const result = await getPosts();
+      
+      // Compara se há mudanças antes de atualizar o estado
+      if (JSON.stringify(result) !== JSON.stringify(posts)) {
+        setPosts(result);
+        setLastFetchTimestamp(Date.now());
+        
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data: result,
+          timestamp: Date.now()
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao buscar posts:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      // Verifica se existe cache
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData);
-        const isExpired = Date.now() - timestamp > CACHE_DURATION;
-        
-        // Se o cache não estiver expirado, use os dados do cache
-        if (!isExpired) {
-          setPosts(data);
-          return;
-        }
+    // Carrega dados do cache inicialmente
+    const cachedData = localStorage.getItem(CACHE_KEY);
+    if (cachedData) {
+      const { data, timestamp } = JSON.parse(cachedData);
+      const isExpired = Date.now() - timestamp > CACHE_DURATION;
+      
+      if (!isExpired) {
+        setPosts(data);
+        setLastFetchTimestamp(timestamp);
+      } else {
+        fetchPosts();
       }
+    } else {
+      fetchPosts();
+    }
 
-      // Se não houver cache ou estiver expirado, busca novos dados
-      const result = await getPosts();
-      setPosts(result);
+    // Configura o intervalo de polling
+    const pollInterval = setInterval(fetchPosts, 5000);
 
-      // Salva os novos dados no cache
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        data: result,
-        timestamp: Date.now()
-      }));
-    };
-    
-    fetchPosts();
-  }, [CACHE_KEY, CACHE_DURATION]);
+    // Limpa o intervalo quando o componente é desmontado
+    return () => clearInterval(pollInterval);
+  }, []); // Array de dependências vazio
 
   const handleDelete = async (postId: string) => {
     setDeletingPostId(postId);
