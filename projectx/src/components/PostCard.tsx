@@ -11,30 +11,40 @@ export function PostCard({ post, onEdit, onDelete, canEdit }: PostCardProps) {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-lg transition-all duration-200 hover:bg-white/[0.07] cursor-pointer">
-          <h2 className="text-xl font-bold text-white/90 mb-2">{post.title}</h2>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="bg-white/10 px-3 py-1 rounded-full text-sm text-white/80">
-              {post.language}
-            </span>
-          </div>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="px-3 py-1 rounded-full text-l text-white/80 flex items-center gap-1">
-              {[...Array(post.stars)].map((_, i) => (
-                <svg
-                  key={i}
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-5 h-5 fill-yellow-400"
-                >
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-              ))}
-            </span>
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-lg transition-all duration-200 hover:bg-white/[0.07] cursor-pointer flex flex-col min-h-[250px]">
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-white/90 mb-4">{post.title}</h2>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <img
+                src={post.user.image || "https://github.com/shadcn.png"}
+                alt={post.user.name}
+                className="h-8 w-8 rounded-full border border-white/10"
+              />
+              <span className="text-sm text-white/70">{post.user.name}</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className="bg-white/10 px-3 py-1 rounded-full text-sm text-white/80">
+                {post.language}
+              </span>
+              <span className="flex items-center gap-1 text-white/80">
+                {[...Array(post.stars)].map((_, i) => (
+                  <svg
+                    key={i}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 fill-yellow-400"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                ))}
+              </span>
+            </div>
           </div>
 
           {canEdit && (
-            <div className="flex gap-3">
+            <div className="flex gap-3 mt-auto pt-4 border-t border-white/10">
               <button
                 onClick={() => onEdit?.(post)}
                 className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex-1"
