@@ -12,8 +12,8 @@ export default function CreatePost() {
   const { data: session } = useSession();
 
   const [postData, setPostData] = useState<Omit<Post, "createdAt">>({
-    id: crypto.randomUUID(), 
-    userId: session?.user?.id || "", 
+    id: crypto.randomUUID(),
+    userId: session?.user?.id || "",
     title: "",
     description: "",
     language: "",
@@ -35,13 +35,13 @@ export default function CreatePost() {
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!postData.description) {
       toast.error('Por favor, adicione uma descrição para o projeto');
       setIsSubmitting(false);
       return;
     }
-    
+
     if (!postData.language) {
       toast.error('Por favor, informe a linguagem utilizada');
       setIsSubmitting(false);
@@ -91,17 +91,16 @@ export default function CreatePost() {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                className={`w-8 h-8 transition-colors duration-200 ${
-                  hoveredStar > 0
+                className={`w-8 h-8 transition-colors duration-200 ${hoveredStar > 0
                     ? star <= hoveredStar
                       ? "fill-yellow-400"
                       : "fill-gray-500"
                     : star <= postData.stars
-                    ? "fill-yellow-400"
-                    : "fill-gray-500"
-                }`}
+                      ? "fill-yellow-400"
+                      : "fill-gray-500"
+                  }`}
               >
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             </button>
           ))}
@@ -112,7 +111,7 @@ export default function CreatePost() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
-      <Toaster position="top-center"/>
+      <Toaster position="top-center" />
       <div className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-6 lg:p-8 shadow-xl h-full">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-3">
@@ -136,7 +135,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, title: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    
+
                   />
                 </div>
 
@@ -152,7 +151,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, language: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    
+
                   />
                 </div>
 
@@ -167,7 +166,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, description: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white h-32"
-                    
+
                   />
                 </div>
 
@@ -177,16 +176,13 @@ export default function CreatePost() {
                   </label>
                   <input
                     id="repoUrl"
-                    type="url"
-                    placeholder="https://github.com/seu-usuario/seu-repo"
+                    placeholder="https://seuprojeto.com"
                     value={postData.repoUrl}
                     onChange={(e) => setPostData({ ...postData, repoUrl: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
-                    focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    
+                  focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <label htmlFor="duration" className="text-sm font-medium text-white/80 flex items-center gap-2">
                     Duração do Projeto *
@@ -199,7 +195,7 @@ export default function CreatePost() {
                     onChange={(e) => setPostData({ ...postData, duration: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
                     focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                    
+
                   />
                 </div>
                 <div className="flex flex-1 md:col-span-2 items-center justify-center">
@@ -219,8 +215,8 @@ export default function CreatePost() {
                   {isSubmitting ? (
                     <span className="flex items-center justify-center space-x-2">
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
                       <span>Criando...</span>
                     </span>
