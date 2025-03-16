@@ -14,9 +14,12 @@ export interface PostData {
 
 export interface PostWithUser extends Post {
   user: {
-    name: string;
-    image?: string;
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
   };
+  code?: string;
 }
 
 export interface PostCardProps {

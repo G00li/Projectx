@@ -5,20 +5,31 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { PostCardProps } from "../types/Post";
+import { PostWithUser } from "../types/Post";
 
-export function PostCard({ post, onEdit, onDelete, canEdit }: PostCardProps) {
+interface PostCardProps {
+  post: PostWithUser;
+  onEdit: (post: PostWithUser) => void;
+  onDelete: (postId: string) => void;
+  onSelect: (post: PostWithUser) => void;
+  canEdit: boolean;
+}
+
+export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCardProps) {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-lg transition-all duration-200 hover:bg-white/[0.07] cursor-pointer flex flex-col min-h-[250px]">
+        <div 
+          className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
+          onClick={() => onSelect(post)}
+        >
           <div className="flex-1">
             <h2 className="text-xl font-bold text-white/90 mb-4">{post.title}</h2>
             
             <div className="flex items-center gap-2 mb-4">
               <img
                 src={post.user.image || "https://github.com/shadcn.png"}
-                alt={post.user.name}
+                alt={post.user.name || "User avatar"}
                 className="h-8 w-8 rounded-full border border-white/10"
               />
               <span className="text-sm text-white/70">{post.user.name}</span>
@@ -91,7 +102,7 @@ export function PostCard({ post, onEdit, onDelete, canEdit }: PostCardProps) {
           <div className="flex items-center gap-3 pt-3 border-t border-white/10">
             <img
               src={post.user.image || "https://github.com/shadcn.png"}
-              alt={post.user.name}
+              alt={post.user.name || "User avatar"}
               className="h-10 w-10 rounded-full"
             />
             <div>
