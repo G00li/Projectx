@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import LoadingScreen from "./LoadingScreen";
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
@@ -15,7 +16,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
   }, [status, router]);
 
   if (status === "loading") {
-    return <p>AuthWrapper.tsx- linha-80...</p>;
+    return <LoadingScreen message="Carregando..." />;
   }
 
   return <>{children}</>;
