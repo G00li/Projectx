@@ -10,23 +10,20 @@ export async function GET() {
       include: {
         user: {
           select: {
+            id: true,
             name: true,
+            email: true,
             image: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+            createdAt: true
+          }
+        }
+      }
     });
 
     return NextResponse.json(posts);
   } catch (error) {
-    console.error("Erro ao buscar posts:", error);
-    return NextResponse.json(
-      { error: "Erro ao buscar posts" },
-      { status: 500 }
-    );
+    console.error('Erro ao buscar posts:', error);
+    return NextResponse.json({ error: 'Erro ao buscar posts' }, { status: 500 });
   }
 }
 

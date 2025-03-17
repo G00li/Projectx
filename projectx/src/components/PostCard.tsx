@@ -27,11 +27,34 @@ export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCard
             <h2 className="text-xl font-bold text-white/90 mb-4">{post.title}</h2>
             
             <div className="flex items-center gap-2 mb-4">
-              <img
-                src={post.user.image || "https://github.com/shadcn.png"}
-                alt={post.user.name || "User avatar"}
-                className="h-8 w-8 rounded-full border border-white/10"
-              />
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <img
+                    src={post.user.image || "https://github.com/shadcn.png"}
+                    alt={post.user.name || "User avatar"}
+                    className="h-8 w-8 rounded-full border border-white/10 cursor-pointer"
+                  />
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80 bg-gray-900 border border-white/10 text-white">
+                  <div className="flex justify-between space-x-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={post.user.image || "https://github.com/shadcn.png"}
+                        alt={post.user.name || "User avatar"}
+                        className="h-12 w-12 rounded-full"
+                      />
+                      <div>
+                        <h4 className="text-sm font-semibold text-white/90">{post.user.name}</h4>
+                        <p className="text-xs text-white/60">Membro desde {post.user.createdAt ? new Date(post.user.createdAt).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        }).replace(/\bof\b/g, 'de') : 'Data não disponível'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
               <span className="text-sm text-white/70">{post.user.name}</span>
             </div>
 

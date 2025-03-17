@@ -18,6 +18,7 @@ export interface PostWithUser extends Post {
     name: string | null;
     email: string | null;
     image: string | null;
+    createdAt: Date | null;
   };
   code?: string;
 }
