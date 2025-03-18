@@ -10,7 +10,7 @@ const Navbar = () => {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <nav className="flex justify-between items-center relative z-30 h-[61px] bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-white/10 backdrop-blur-lg shadow-lg">
+    <nav className="fixed top-0 left-0 right-0 flex justify-between items-center z-30 h-[61px] bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-white/10 backdrop-blur-lg shadow-lg">
       <div className="flex items-center gap-4 px-5">
         <Link href="/" className="flex items-center gap-3 group">
           <Image 

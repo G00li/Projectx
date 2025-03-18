@@ -29,7 +29,7 @@ export default function RootLayout({
         <title>Projeto X</title>
       </head>
 
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased pt-[61px]`}>
       <script defer src="https://cloud.umami.is/script.js" data-website-id="32bcc95d-cdca-4f1c-8025-ebc8ff9b0234"></script>
         <SessionProvider>
           <AuthWrapper>
