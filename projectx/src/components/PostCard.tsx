@@ -9,8 +9,8 @@ import { PostWithUser } from "../types/Post";
 
 interface PostCardProps {
   post: PostWithUser;
-  onEdit: (post: PostWithUser) => void;
-  onDelete: (postId: string) => void;
+  onEdit: (post: PostWithUser, e: React.MouseEvent) => void;
+  onDelete: (postId: string, e: React.MouseEvent) => void;
   onSelect: (post: PostWithUser) => void;
   canEdit: boolean;
 }
@@ -80,13 +80,13 @@ export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCard
           {canEdit && (
             <div className="flex gap-3 mt-auto pt-4 border-t border-white/10">
               <button
-                onClick={() => onEdit?.(post)}
+                onClick={(e) => onEdit(post, e)}
                 className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex-1"
               >
                 Editar
               </button>
               <button
-                onClick={() => onDelete?.(post.id)}
+                onClick={(e) => onDelete(post.id, e)}
                 className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex-1"
               >
                 Deletar

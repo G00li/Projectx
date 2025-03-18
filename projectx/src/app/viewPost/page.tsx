@@ -5,6 +5,8 @@ import { getPosts, deletePost, updatePost } from "@/services/postService";
 import { useSession } from "next-auth/react";
 import { PostCard } from "@/components/PostCard";
 import { PostWithUser } from "../../types/Post";
+import toast from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 export default function Posts() {
   const { data: session } = useSession();
@@ -15,19 +17,31 @@ export default function Posts() {
   const CACHE_KEY = 'cached_posts';
   const CACHE_DURATION = 5 * 1000;
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const fetchPosts = async () => {
     try {
       const result = await getPosts();
       
-      if (JSON.stringify(result) !== JSON.stringify(posts)) {
-        setPosts(result);
+      // Ordena os posts apenas no primeiro carregamento
+      const newPosts = isFirstLoad 
+        ? result.sort((a: PostWithUser, b: PostWithUser) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        : result;
+      
+      if (JSON.stringify(newPosts) !== JSON.stringify(posts)) {
+        setPosts(newPosts);
         setLastFetchTimestamp(Date.now());
         
         localStorage.setItem(CACHE_KEY, JSON.stringify({
-          data: result,
+          data: newPosts,
           timestamp: Date.now()
         }));
+      }
+
+      if (isFirstLoad) {
+        setIsFirstLoad(false);
       }
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
@@ -57,7 +71,8 @@ export default function Posts() {
     return () => clearInterval(pollInterval);
   }, []); // Array de dependências vazio
 
-  const handleDelete = async (postId: string) => {
+  const handleDelete = async (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setDeletingPostId(postId);
   };
 
@@ -65,16 +80,23 @@ export default function Posts() {
     if (!deletingPostId) return;
     
     try {
-      await deletePost(deletingPostId);
+      await toast.promise(
+        deletePost(deletingPostId),
+        {
+          loading: 'Deletando post...',
+          success: 'Post deletado com sucesso! 🗑️',
+          error: 'Erro ao deletar post 😕'
+        }
+      );
       setPosts(posts.filter((post: any) => post.id !== deletingPostId));
       setDeletingPostId(null);
     } catch (error) {
       console.error('Erro ao deletar post:', error);
-      alert('Erro ao deletar post');
     }
   };
 
-  const handleEdit = async (post: PostWithUser) => {
+  const handleEdit = async (post: PostWithUser, e: React.MouseEvent) => {
+    e.stopPropagation(); // Impede a propagação do evento
     setEditingPost(post);
   };
 
@@ -84,14 +106,23 @@ export default function Posts() {
       if (!editingPost) {
         throw new Error('Post não encontrado');
       }
-      const updatedPost = await updatePost(editingPost.id, editingPost);
-      setPosts(posts.map((post: any) => 
-        post.id === updatedPost.id ? updatedPost : post
-      ));
+      
+      const updatedPost = await toast.promise(
+        updatePost(editingPost.id, editingPost),
+        {
+          loading: 'Atualizando post...',
+          success: 'Post atualizado com sucesso! ✨',
+          error: 'Erro ao atualizar post 😕'
+        }
+      );
+      
+      // Atualiza o post mantendo a ordem original
+      setPosts(prevPosts => 
+        prevPosts.map(post => post.id === editingPost.id ? updatedPost : post)
+      );
       setEditingPost(null);
     } catch (error) {
       console.error('Erro ao atualizar post:', error);
-      alert('Erro ao atualizar post');
     }
   };
 
@@ -101,6 +132,7 @@ export default function Posts() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
+      <Toaster position="top-center" />
       <div className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-6 lg:p-8 shadow-xl h-full">
           <h1 className="text-xl sm:text-2xl font-bold text-white/90 tracking-tight mb-6">Posts</h1>
@@ -110,8 +142,8 @@ export default function Posts() {
               <PostCard
                 key={post.id}
                 post={post}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                onEdit={(post, e) => handleEdit(post, e)}
+                onDelete={(id, e) => handleDelete(id, e)}
                 onSelect={handlePostClick}
                 canEdit={session?.user?.id === post.userId}
               />
