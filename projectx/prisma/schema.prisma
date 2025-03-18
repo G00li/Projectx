@@ -23,6 +23,7 @@ model User {
   sessions      Session[]
   cookieConsent  Boolean @default(false)
   cookieConsentAt DateTime?
+  likes         Like[]
 }
 
 model Post {
@@ -36,6 +37,8 @@ model Post {
   stars       Int      @default(1)
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes       Like[]
+  likeCount   Int      @default(0)
 }
 
 model Account {
@@ -62,4 +65,15 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
 }
