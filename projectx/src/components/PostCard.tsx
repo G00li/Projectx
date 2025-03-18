@@ -25,35 +25,48 @@ export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCard
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all cursor-pointer relative">
+        <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all cursor-pointer relative"
+             onClick={() => onSelect(post)}>
           {canEdit && (
-            <div className="absolute top-4 right-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+            <div 
+              className="absolute top-4 right-4" 
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger 
+                  className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="text-white/60"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="text-white/60"
-                    >
-                      <circle cx="12" cy="6" r="2" />
-                      <circle cx="12" cy="12" r="2" />
-                      <circle cx="12" cy="18" r="2" />
-                    </svg>
-                  </button>
+                    <circle cx="12" cy="6" r="2" />
+                    <circle cx="12" cy="12" r="2" />
+                    <circle cx="12" cy="18" r="2" />
+                  </svg>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
+                  align="end"
+                  side="right"
                   className="bg-gray-900 border-white/10 text-white"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <DropdownMenuItem
-                    onClick={(e) => onEdit(post, e)}
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      onEdit(post, e as any);
+                    }}
                     className="hover:bg-white/10 cursor-pointer gap-2"
                   >
                     <svg
@@ -72,7 +85,10 @@ export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCard
                     Editar
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={(e) => onDelete(post.id, e)}
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      onDelete(post.id, e as any);
+                    }}
                     className="hover:bg-white/10 cursor-pointer gap-2"
                   >
                     <svg
