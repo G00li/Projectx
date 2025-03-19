@@ -19,6 +19,8 @@ export default function Posts() {
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
+  const [showLikesModal, setShowLikesModal] = useState<boolean>(false);
+  const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
 
   const fetchPosts = async () => {
     try {
@@ -166,6 +168,13 @@ export default function Posts() {
         )
       );
 
+      setSelectedPost(prev => {
+        if (prev && prev.id === postId) {
+          return { ...prev, likeCount: data.likeCount };
+        }
+        return prev;
+      });
+
       toast.success(data.isLiked ? 'Post curtido! ❤️' : 'Like removido! 💔');
     } catch (error) {
       console.error('Erro ao dar like:', error);
@@ -214,6 +223,27 @@ export default function Posts() {
       checkAllLikes();
     }
   }, [posts, session]);
+
+  const fetchLikeUsers = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/likes`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar usuários');
+      }
+
+      const data = await response.json();
+      setLikeUsers(data.users);
+      setShowLikesModal(true);
+    } catch (error) {
+      console.error('Erro ao buscar usuários que curtiram:', error);
+      toast.error('Erro ao carregar usuários');
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
@@ -269,27 +299,37 @@ export default function Posts() {
                 </svg>
               </button>
             </div>
-
-            {/* Adicione o botão de like próximo ao título ou onde preferir */}
+            
+            {/* Botão de like */}
             <div className="flex items-center gap-4 mb-4">
-              <button 
-                onClick={() => handleLike(selectedPost.id)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill={likedPosts[selectedPost.id] ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className={`${likedPosts[selectedPost.id] ? "text-red-500" : "text-white/60"}`}
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleLike(selectedPost.id)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <span className="text-white/80">{selectedPost.likeCount}</span>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill={likedPosts[selectedPost.id] ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={`${likedPosts[selectedPost.id] ? "text-red-500" : "text-white/60"}`}
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fetchLikeUsers(selectedPost.id);
+                  }}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  {selectedPost.likeCount}
+                </button>
+              </div>
             </div>
 
             {/* Informações do Projeto */}
@@ -471,6 +511,40 @@ export default function Posts() {
                   Excluir
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLikesModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl w-full max-w-md border border-white/10">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white/90">Usuários que curtiram</h3>
+              <button
+                onClick={() => setShowLikesModal(false)}
+                className="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              {likeUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-3 bg-white/5 p-3 rounded-lg">
+                  <img
+                    src={user.image || "https://github.com/shadcn.png"}
+                    alt={`${user.name}'s avatar`}
+                    className="h-10 w-10 rounded-full border border-white/10"
+                  />
+                  <span className="text-white/90">{user.name}</span>
+                </div>
+              ))}
+              {likeUsers.length === 0 && (
+                <p className="text-center text-white/60 py-4">Nenhuma curtida ainda</p>
+              )}
             </div>
           </div>
         </div>

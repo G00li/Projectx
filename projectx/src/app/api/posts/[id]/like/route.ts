@@ -96,8 +96,31 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { id } = await Promise.resolve(context.params); // Aguarda os parâmetros
-    
+    const { id } = await Promise.resolve(context.params);
+
+    // Se a requisição vier da rota /likes, retorna a lista de usuários que curtiram
+    const url = new URL(request.url);
+    if (url.pathname.endsWith('/likes')) {
+      const likes = await prisma.like.findMany({
+        where: {
+          postId: id
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true
+            }
+          }
+        }
+      });
+
+      const users = likes.map(like => like.user);
+      return NextResponse.json({ users });
+    }
+
+    // Caso contrário, mantém o comportamento original de verificar o status do like
     if (!session?.user) {
       return NextResponse.json({ isLiked: false });
     }
