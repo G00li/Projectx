@@ -18,10 +18,12 @@ interface PostCardProps {
   onEdit: (post: PostWithUser, e: React.MouseEvent) => void;
   onDelete: (postId: string, e: React.MouseEvent) => void;
   onSelect: (post: PostWithUser) => void;
+  onLike: (postId: string) => void;
   canEdit: boolean;
+  isLiked: boolean;
 }
 
-export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCardProps) {
+export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, isLiked }: PostCardProps) {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -164,6 +166,30 @@ export function PostCard({ post, onEdit, onDelete, onSelect, canEdit }: PostCard
                     </svg>
                   ))}
                 </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLike(post.id);
+                  }}
+                  className="flex items-center gap-1 text-white/80 hover:text-white transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill={isLiked ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={`${isLiked ? "text-red-500" : "text-white/60"}`}
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  <span>{post.likeCount}</span>
+                </button>
               </div>
             </div>
           </div>

@@ -18,6 +18,7 @@ export default function Posts() {
   const CACHE_DURATION = 5 * 1000;
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
 
   const fetchPosts = async () => {
     try {
@@ -130,6 +131,90 @@ export default function Posts() {
     setSelectedPost(post);
   };
 
+  const handleLike = async (postId: string) => {
+    try {
+      if (!session?.user) {
+        toast.error('Você precisa estar logado para curtir posts');
+        return;
+      }
+
+      const response = await fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao processar like');
+      }
+
+      const data = await response.json();
+      
+      // Atualiza o estado local dos likes
+      setLikedPosts(prev => ({
+        ...prev,
+        [postId]: data.isLiked
+      }));
+      
+      // Atualiza a contagem de likes no post
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post.id === postId
+            ? { ...post, likeCount: data.likeCount }
+            : post
+        )
+      );
+
+      toast.success(data.isLiked ? 'Post curtido! ❤️' : 'Like removido! 💔');
+    } catch (error) {
+      console.error('Erro ao dar like:', error);
+      toast.error('Erro ao processar like');
+    }
+  };
+
+  const checkLikeStatus = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/like`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao verificar status do like');
+      }
+
+      const data = await response.json();
+      return data.isLiked;
+    } catch (error) {
+      console.error('Erro ao verificar status do like:', error);
+      return false;
+    }
+  };
+
+  const checkAllLikes = async () => {
+    try {
+      if (!session?.user) return;
+
+      const likeStatuses: Record<string, boolean> = {};
+      for (const post of posts) {
+        const isLiked = await checkLikeStatus(post.id);
+        likeStatuses[post.id] = isLiked;
+      }
+      setLikedPosts(likeStatuses);
+    } catch (error) {
+      console.error('Erro ao verificar likes:', error);
+    }
+  };
+
+  // Adicione este useEffect para verificar os likes quando os posts são carregados
+  useEffect(() => {
+    if (posts.length > 0 && session?.user) {
+      checkAllLikes();
+    }
+  }, [posts, session]);
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
       <Toaster position="top-center" />
@@ -145,6 +230,8 @@ export default function Posts() {
                 onEdit={(post, e) => handleEdit(post, e)}
                 onDelete={(id, e) => handleDelete(id, e)}
                 onSelect={handlePostClick}
+                onLike={handleLike}
+                isLiked={likedPosts[post.id] || false}
                 canEdit={session?.user?.id === post.userId}
               />
             ))}
@@ -180,6 +267,28 @@ export default function Posts() {
                 <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
+              </button>
+            </div>
+
+            {/* Adicione o botão de like próximo ao título ou onde preferir */}
+            <div className="flex items-center gap-4 mb-4">
+              <button 
+                onClick={() => handleLike(selectedPost.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill={likedPosts[selectedPost.id] ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={`${likedPosts[selectedPost.id] ? "text-red-500" : "text-white/60"}`}
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span className="text-white/80">{selectedPost.likeCount}</span>
               </button>
             </div>
 

@@ -21,6 +21,7 @@ export interface PostWithUser extends Post {
     createdAt: Date | null;
   };
   code?: string;
+  likeCount: number;
 }
 
 export interface PostCardProps {
@@ -29,3 +30,30 @@ export interface PostCardProps {
   onDelete?: (postId: string) => void;
   canEdit?: boolean;
 }
+
+// const handleLike = async (postId: string) => {
+//   try {
+//     const response = await fetch(`/api/posts/${postId}/like`, {
+//       method: 'POST',
+//     });
+    
+//     if (response.ok) {
+//       // Atualizar o estado local do post
+//       // Você pode fazer isso recarregando os posts ou atualizando o estado localmente
+//     }
+//   } catch (error) {
+//     console.error('Erro ao dar like:', error);
+//   }
+// };
+
+// // Verificar se o usuário atual deu like no post
+// const checkLikeStatus = async (postId: string) => {
+//   try {
+//     const response = await fetch(`/api/posts/${postId}/like`);
+//     const data = await response.json();
+//     return data.isLiked;
+//   } catch (error) {
+//     console.error('Erro ao verificar status do like:', error);
+//     return false;
+//   }
+// };
