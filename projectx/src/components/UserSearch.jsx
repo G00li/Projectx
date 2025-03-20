@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const UserSearch = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,10 @@ const UserSearch = () => {
 
     return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
+
+  const handleUserClick = (userId) => {
+    router.push(`/user/${userId}`);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -75,7 +81,8 @@ const UserSearch = () => {
         {users.map(user => (
           <div
             key={user.id}
-            className="bg-gray-800 rounded-xl p-4 flex items-start space-x-4 hover:bg-gray-700 transition-colors duration-200"
+            onClick={() => handleUserClick(user.id)}
+            className="bg-gray-800 rounded-xl p-4 flex items-start space-x-4 hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
           >
             <div className="flex-shrink-0 w-12 h-12 relative rounded-full overflow-hidden">
               <Image
