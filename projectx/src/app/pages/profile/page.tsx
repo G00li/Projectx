@@ -195,7 +195,7 @@ const Profile = () => {
 
                     <div className="space-y-2">
                       <label htmlFor="address" className="text-sm font-medium text-white/80 flex items-center gap-2">
-                        Endereço
+                        Morada
                         <Image src="/icon/profile/address-icon.svg" alt="Endereço" width={16} height={16} className="inline-block text-white/80" />
                       </label>
                       <input
