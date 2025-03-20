@@ -20,6 +20,7 @@ export default function CreatePost() {
     repoUrl: "",
     duration: "",
     stars: 1,
+    likeCount: 0,
   });
 
   const [hoveredStar, setHoveredStar] = useState<number>(0);
@@ -63,7 +64,8 @@ export default function CreatePost() {
           error: 'Erro ao criar post 😕',
         }
       );
-      router.push('/viewPost/');
+      // Redireciona para a página de todos os posts e força um refresh
+      router.push('/');
       router.refresh();
     } catch (error) {
       console.error("Erro:", error);
