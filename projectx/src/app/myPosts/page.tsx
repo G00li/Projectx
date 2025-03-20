@@ -7,6 +7,7 @@ import { PostWithUser } from "../../types/Post";
 import { getPosts, deletePost, updatePost } from "@/services/postService";
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
+import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 
 export default function MyPosts() {
   const { data: session } = useSession();
@@ -17,9 +18,11 @@ export default function MyPosts() {
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
   const [showLikesModal, setShowLikesModal] = useState<boolean>(false);
   const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchMyPosts = async () => {
     try {
+      setIsLoading(true);
       const allPosts = await getPosts();
       // Filtra apenas os posts do usuário logado
       const userPosts = allPosts.filter(
@@ -51,6 +54,8 @@ export default function MyPosts() {
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
       toast.error('Erro ao carregar seus posts');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -188,7 +193,13 @@ export default function MyPosts() {
             Meus Posts
           </h1>
           
-          {posts.length === 0 ? (
+          {isLoading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, index) => (
+                <PostCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : posts.length === 0 ? (
             <div className="text-center text-white/60 py-8">
               <p>Você ainda não criou nenhum post</p>
             </div>
