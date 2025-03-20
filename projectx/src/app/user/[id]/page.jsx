@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
+import LoadingScreen from '@/components/LoadingScreen';
 
 export default function UserProfilePage() {
   const { id } = useParams();
@@ -87,14 +88,7 @@ export default function UserProfilePage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-          <p className="text-white">Carregando dados do usuário...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Carregando perfil do usuário..." />;
   }
 
   if (error) {
