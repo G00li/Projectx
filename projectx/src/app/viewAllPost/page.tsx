@@ -7,6 +7,7 @@ import { PostCard } from "@/components/PostCard";
 import { PostWithUser } from "../../types/Post";
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
+import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 
 export default function Posts() {
   const { data: session } = useSession();
@@ -15,15 +16,17 @@ export default function Posts() {
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<PostWithUser | null>(null);
   const CACHE_KEY = 'cached_posts';
-  const CACHE_DURATION = 5 * 1000;
+  const CACHE_DURATION = 30 * 1000;
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
   const [showLikesModal, setShowLikesModal] = useState<boolean>(false);
   const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchPosts = async () => {
     try {
+      setIsLoading(true);
       const result = await getPosts();
       
       // Ordena os posts apenas no primeiro carregamento
@@ -41,6 +44,32 @@ export default function Posts() {
           data: newPosts,
           timestamp: Date.now()
         }));
+
+        // Verifica o status de like para cada post
+        if (session?.user) {
+          const newLikedPosts: Record<string, boolean> = {};
+          
+          // Busca os likes em paralelo para melhor performance
+          await Promise.all(
+            newPosts.map(async (post: PostWithUser) => {
+              try {
+                const response = await fetch(`/api/posts/${post.id}/likes`);
+                if (response.ok) {
+                  const data = await response.json();
+                  // Verifica se o usuário atual está na lista de usuários que curtiram
+                  newLikedPosts[post.id] = data.users.some(
+                    (user: { id: string }) => user.id === session.user?.id
+                  );
+                }
+              } catch (error) {
+                console.error(`Erro ao verificar like do post ${post.id}:`, error);
+                newLikedPosts[post.id] = false;
+              }
+            })
+          );
+          
+          setLikedPosts(newLikedPosts);
+        }
       }
 
       if (isFirstLoad) {
@@ -48,6 +77,9 @@ export default function Posts() {
       }
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
+      toast.error('Erro ao carregar posts');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,6 +92,7 @@ export default function Posts() {
       if (!isExpired) {
         setPosts(data);
         setLastFetchTimestamp(timestamp);
+        setIsLoading(false);
       } else {
         fetchPosts();
       }
@@ -68,11 +101,11 @@ export default function Posts() {
     }
 
     // Configura o intervalo de polling
-    const pollInterval = setInterval(fetchPosts, 5000);
+    const pollInterval = setInterval(fetchPosts, 10000);
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(pollInterval);
-  }, []); // Array de dependências vazio
+  }, []);
 
   const handleDelete = async (postId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -252,20 +285,28 @@ export default function Posts() {
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-3 sm:p-6 lg:p-8 shadow-xl h-full">
           <h1 className="text-xl sm:text-2xl font-bold text-white/90 tracking-tight mb-6">Posts</h1>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onEdit={(post, e) => handleEdit(post, e)}
-                onDelete={(id, e) => handleDelete(id, e)}
-                onSelect={handlePostClick}
-                onLike={handleLike}
-                isLiked={likedPosts[post.id] || false}
-                canEdit={session?.user?.id === post.userId}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, index) => (
+                <PostCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onEdit={(post, e) => handleEdit(post, e)}
+                  onDelete={(id, e) => handleDelete(id, e)}
+                  onSelect={handlePostClick}
+                  onLike={handleLike}
+                  isLiked={likedPosts[post.id] || false}
+                  canEdit={session?.user?.id === post.userId}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
