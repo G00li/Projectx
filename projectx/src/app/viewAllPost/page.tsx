@@ -651,13 +651,20 @@ export default function Posts() {
             
             <div className="space-y-4 max-h-[60vh] overflow-y-auto">
               {likeUsers.map((user) => (
-                <div key={user.id} className="flex items-center gap-3 bg-white/5 p-3 rounded-lg">
+                <div 
+                  key={user.id} 
+                  className="flex items-center gap-3 bg-white/5 p-3 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group"
+                  onClick={() => {
+                    window.location.href = `/user/${user.id}`;
+                    setShowLikesModal(false);
+                  }}
+                >
                   <img
                     src={user.image || "https://github.com/shadcn.png"}
                     alt={`${user.name}'s avatar`}
-                    className="h-10 w-10 rounded-full border border-white/10"
+                    className="h-10 w-10 rounded-full border border-white/10 group-hover:border-blue-500/50 transition-colors"
                   />
-                  <span className="text-white/90">{user.name}</span>
+                  <span className="text-white/90 group-hover:text-blue-400 transition-colors">{user.name}</span>
                 </div>
               ))}
               {likeUsers.length === 0 && (

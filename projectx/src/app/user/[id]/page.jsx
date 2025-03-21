@@ -192,7 +192,10 @@ export default function UserProfilePage() {
                   <span className="text-white font-semibold">{userData._count?.posts || 0}</span> posts
                 </div>
                 <div className="text-gray-400">
-                  <span className="text-white font-semibold">{userData._count?.likes || 0}</span> curtidas
+                  <span className="text-white font-semibold">{userData.totalLikesReceived || 0}</span> curtidas recebidas
+                </div>
+                <div className="text-gray-400">
+                  <span className="text-white font-semibold">{userData._count?.likes || 0}</span> posts curtidos
                 </div>
               </div>
             </div>

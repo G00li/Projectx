@@ -31,6 +31,15 @@ export async function GET(request, { params }) {
         github: true,
         linkedin: true,
         createdAt: true,
+        posts: {
+          select: {
+            _count: {
+              select: {
+                likes: true
+              }
+            }
+          }
+        },
         _count: {
           select: {
             posts: true,
@@ -55,7 +64,16 @@ export async function GET(request, { params }) {
       user.birthDate = user.birthDate.toISOString();
     }
 
-    return NextResponse.json(user);
+    // Calcular total de curtidas recebidas
+    const totalLikesReceived = user?.posts.reduce((sum, post) => sum + post._count.likes, 0);
+
+    // Adicionar o total ao objeto do usuário
+    const userWithTotalLikes = {
+      ...user,
+      totalLikesReceived
+    };
+
+    return NextResponse.json(userWithTotalLikes);
   } catch (error) {
     console.error('Erro detalhado ao buscar usuário:', {
       message: error.message,
