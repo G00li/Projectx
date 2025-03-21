@@ -19,6 +19,12 @@ export interface PostWithUser extends Post {
     email: string | null;
     image: string | null;
     createdAt: Date | null;
+    _count?: {
+      posts: number;
+      likes: number;
+    };
+    github?: string | null;
+    linkedin?: string | null;
   };
   code?: string;
   likeCount: number;

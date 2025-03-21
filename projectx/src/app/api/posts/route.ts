@@ -14,7 +14,15 @@ export async function GET() {
             name: true,
             email: true,
             image: true,
-            createdAt: true
+            createdAt: true,
+            github: true,
+            linkedin: true,
+            _count: {
+              select: {
+                posts: true,
+                likes: true
+              }
+            }
           }
         }
       }
