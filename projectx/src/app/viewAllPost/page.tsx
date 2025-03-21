@@ -24,39 +24,43 @@ export default function Posts() {
   const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (showLoading = false) => {
     try {
-      setIsLoading(true);
+      if (showLoading) {
+        setIsLoading(true);
+      }
+
       const result = await getPosts();
       
-      // Ordena os posts apenas no primeiro carregamento
-      const newPosts = isFirstLoad 
-        ? result.sort((a: PostWithUser, b: PostWithUser) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-        : result;
+      // Compara os posts existentes com os novos
+      const existingPostIds = new Set(posts.map((post: PostWithUser) => post.id));
+      const newPosts = result.filter((post: PostWithUser) => !existingPostIds.has(post.id));
       
-      if (JSON.stringify(newPosts) !== JSON.stringify(posts)) {
-        setPosts(newPosts);
+      if (newPosts.length > 0 || isFirstLoad) {
+        // Ordena apenas os novos posts e adiciona ao início
+        const sortedNewPosts = newPosts.sort((a: PostWithUser, b: PostWithUser) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        const updatedPosts = isFirstLoad ? sortedNewPosts : [...sortedNewPosts, ...posts];
+        setPosts(updatedPosts);
         setLastFetchTimestamp(Date.now());
         
         localStorage.setItem(CACHE_KEY, JSON.stringify({
-          data: newPosts,
+          data: updatedPosts,
           timestamp: Date.now()
         }));
 
-        // Verifica o status de like para cada post
-        if (session?.user) {
-          const newLikedPosts: Record<string, boolean> = {};
+        // Verifica o status de like apenas para os novos posts
+        if (session?.user && newPosts.length > 0) {
+          const newLikedPosts: Record<string, boolean> = { ...likedPosts };
           
-          // Busca os likes em paralelo para melhor performance
           await Promise.all(
             newPosts.map(async (post: PostWithUser) => {
               try {
                 const response = await fetch(`/api/posts/${post.id}/likes`);
                 if (response.ok) {
                   const data = await response.json();
-                  // Verifica se o usuário atual está na lista de usuários que curtiram
                   newLikedPosts[post.id] = data.users.some(
                     (user: { id: string }) => user.id === session.user?.id
                   );
@@ -70,6 +74,11 @@ export default function Posts() {
           
           setLikedPosts(newLikedPosts);
         }
+
+        // Notifica o usuário sobre novos posts apenas se não for o primeiro carregamento
+        if (!isFirstLoad && newPosts.length > 0) {
+          toast.success(`${newPosts.length} ${newPosts.length === 1 ? 'novo post adicionado' : 'novos posts adicionados'} 🎉`);
+        }
       }
 
       if (isFirstLoad) {
@@ -77,9 +86,13 @@ export default function Posts() {
       }
     } catch (error) {
       console.error('Erro ao buscar posts:', error);
-      toast.error('Erro ao carregar posts');
+      if (!isFirstLoad) {
+        toast.error('Erro ao atualizar posts');
+      }
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -93,15 +106,17 @@ export default function Posts() {
         setPosts(data);
         setLastFetchTimestamp(timestamp);
         setIsLoading(false);
+        // Ainda faz uma verificação em background
+        fetchPosts(false);
       } else {
-        fetchPosts();
+        fetchPosts(true);
       }
     } else {
-      fetchPosts();
+      fetchPosts(true);
     }
 
     // Configura o intervalo de polling
-    const pollInterval = setInterval(fetchPosts, 10000);
+    const pollInterval = setInterval(() => fetchPosts(false), 10000);
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(pollInterval);
