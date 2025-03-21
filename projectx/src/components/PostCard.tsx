@@ -29,6 +29,11 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
     window.location.href = `/user/${post.userId}`;
   };
 
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength).trim() + '...';
+  };
+
   return (
     <div className="relative group">
       {/* Card do Post */}
@@ -68,7 +73,7 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
               <DropdownMenuContent
                 align="end"
                 side="right"
-                className="bg-gray-900 border-white/10 text-white"
+                className="bg-gray-900 border border-white/10 text-white"
                 onClick={(e) => e.stopPropagation()}
               >
                 <DropdownMenuItem
@@ -222,6 +227,11 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
             </HoverCard>
           </div>
           
+          {/* Descrição truncada */}
+          <p className="text-white/70 text-sm mb-4 line-clamp-2">
+            {truncateText(post.description, 150)}
+          </p>
+
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className="bg-white/10 px-3 py-1 rounded-full text-sm text-white/80">
               {post.language}
