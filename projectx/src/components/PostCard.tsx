@@ -26,6 +26,8 @@ interface PostCardProps {
 
 export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, isLiked }: PostCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userData, setUserData] = useState(post.user);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -47,6 +49,22 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
     event.preventDefault();
     setIsMenuOpen(false);
     onDelete(post.id, event as unknown as React.MouseEvent);
+  };
+
+  // Função para buscar dados atualizados do usuário
+  const fetchUserData = async (userId: string) => {
+    try {
+      setIsLoadingUserData(true);
+      const response = await fetch(`/api/users/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error);
+    } finally {
+      setIsLoadingUserData(false);
+    }
   };
 
   return (
@@ -142,10 +160,14 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
           <div className="flex items-center gap-2 mb-4 relative">
             <HoverCard>
               <HoverCardTrigger asChild>
-                <div className="flex items-center gap-2 cursor-pointer z-20" onClick={(e) => e.stopPropagation()}>
+                <div 
+                  className="flex items-center gap-2 cursor-pointer z-20" 
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseEnter={() => fetchUserData(post.userId)}
+                >
                   <img
-                    src={post.user.image || "https://github.com/shadcn.png"}
-                    alt={post.user.name || "User avatar"}
+                    src={userData.image || "/icon/profile-icon.svg"}
+                    alt={userData.name || "User avatar"}
                     className="h-8 w-8 rounded-full border border-white/10 hover:opacity-80 transition-opacity"
                     onClick={handleUserClick}
                   />
@@ -153,7 +175,7 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                     className="text-sm text-white/70 hover:text-blue-400 transition-colors"
                     onClick={handleUserClick}
                   >
-                    {post.user.name}
+                    {userData.name}
                   </span>
                 </div>
               </HoverCardTrigger>
@@ -165,17 +187,17 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center gap-3 cursor-pointer" onClick={handleUserClick}>
                     <img
-                      src={post.user.image || "https://github.com/shadcn.png"}
-                      alt={post.user.name || "User avatar"}
+                      src={userData.image || "/icon/profile-icon.svg"}
+                      alt={userData.name || "User avatar"}
                       className="h-16 w-16 rounded-full hover:opacity-80 transition-opacity border-2 border-blue-500/20"
                     />
                     <div>
                       <h4 className="text-lg font-semibold text-white/90 hover:text-blue-400 transition-colors">
-                        {post.user.name}
+                        {userData.name}
                       </h4>
                       <p className="text-sm text-white/60">
-                        Membro desde {post.user.createdAt ? 
-                          new Date(post.user.createdAt).toLocaleDateString('pt-BR', {
+                        Membro desde {userData.createdAt ? 
+                          new Date(userData.createdAt).toLocaleDateString('pt-BR', {
                             month: 'long',
                             year: 'numeric'
                           }) : 'Data não disponível'}
@@ -184,34 +206,49 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 bg-white/5 rounded-lg p-3">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-400">{post.user._count?.posts || 0}</p>
-                      <p className="text-sm text-white/60">Projetos</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-400">{post.user._count?.likes || 0}</p>
-                      <p className="text-sm text-white/60">Curtidas</p>
-                    </div>
+                    {isLoadingUserData ? (
+                      <>
+                        <div className="text-center">
+                          <div className="h-8 w-16 bg-white/10 rounded animate-pulse mx-auto mb-1"></div>
+                          <p className="text-sm text-white/60">Projetos</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="h-8 w-16 bg-white/10 rounded animate-pulse mx-auto mb-1"></div>
+                          <p className="text-sm text-white/60">Curtidas</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-blue-400">{userData._count?.posts || 0}</p>
+                          <p className="text-sm text-white/60">Projetos</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-purple-400">{userData._count?.likes || 0}</p>
+                          <p className="text-sm text-white/60">Curtidas</p>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex gap-2">
-                    {post.user.github && (
+                    {userData.github && (
                       <a
-                        href={post.user.github}
+                        href={userData.github}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors text-sm text-white/80 hover:text-white"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.239 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                         </svg>
                         GitHub
                       </a>
                     )}
-                    {post.user.linkedin && (
+                    {userData.linkedin && (
                       <a
-                        href={post.user.linkedin}
+                        href={userData.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors text-sm text-white/80 hover:text-white"

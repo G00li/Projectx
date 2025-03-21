@@ -1,19 +1,25 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
 import LoadingScreen from '@/components/LoadingScreen';
+import { PostCard } from '@/components/PostCard';
+import { useSession } from "next-auth/react";
 
 export default function UserProfilePage() {
+  const { data: session } = useSession();
   const { id } = useParams();
+  const router = useRouter();
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [likedPosts, setLikedPosts] = useState([]);
   const [activeTab, setActiveTab] = useState('posts');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [likedPostsMap, setLikedPostsMap] = useState({});
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -86,6 +92,88 @@ export default function UserProfilePage() {
 
     fetchUserData();
   }, [id]);
+
+  const handlePostSelect = (post) => {
+    console.log('Post selecionado:', post);
+    setSelectedPost({
+      ...post,
+      userId: post.user?.id || post.userId
+    });
+  };
+
+  const handlePostLike = async (postId) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao processar like');
+      }
+
+      const data = await response.json();
+      
+      // Atualiza o estado dos likes
+      setLikedPostsMap(prev => ({
+        ...prev,
+        [postId]: data.isLiked
+      }));
+      
+      // Atualiza a contagem de likes nos posts
+      const updatePosts = (posts) => 
+        posts.map(post => 
+          post.id === postId 
+            ? { ...post, likeCount: data.likeCount }
+            : post
+        );
+      
+      setUserPosts(updatePosts(userPosts));
+      setLikedPosts(updatePosts(likedPosts));
+    } catch (error) {
+      console.error('Erro ao processar like:', error);
+    }
+  };
+
+  // Verifica o status dos likes quando os posts são carregados
+  useEffect(() => {
+    const checkLikes = async () => {
+      if (!session?.user) return;
+      
+      const allPosts = [...userPosts, ...likedPosts];
+      const likes = {};
+      
+      for (const post of allPosts) {
+        try {
+          const response = await fetch(`/api/posts/${post.id}/likes`);
+          const data = await response.json();
+          likes[post.id] = data.users?.some(user => user.id === session.user.id) || false;
+        } catch (error) {
+          console.error(`Erro ao verificar like do post ${post.id}:`, error);
+        }
+      }
+      setLikedPostsMap(likes);
+    };
+
+    checkLikes();
+  }, [userPosts, likedPosts, session]);
+
+  const handlePostEdit = (post, e) => {
+    // Implementar lógica de edição se necessário
+    console.log('Editar post:', post);
+  };
+
+  const handlePostDelete = (postId, e) => {
+    // Implementar lógica de deleção se necessário
+    console.log('Deletar post:', postId);
+  };
+
+  // Função para navegar para o perfil do usuário
+  const handleUserProfileClick = (userId) => {
+    router.push(`/user/${userId}`);
+  };
 
   if (loading) {
     return <LoadingScreen message="Carregando perfil do usuário..." />;
@@ -230,37 +318,25 @@ export default function UserProfilePage() {
           <div className="p-6">
             {activeTab === 'posts' ? (
               userPosts.length > 0 ? (
-                <div className="grid gap-4">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {userPosts.map(post => (
-                    <div key={post.id} className="bg-gray-700 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-white font-medium">{post.title}</h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-yellow-400">★</span>
-                          <span className="text-gray-300">{post.stars}</span>
-                        </div>
-                      </div>
-                      <p className="text-gray-300 mb-3">{post.description}</p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                        <div className="text-gray-400">
-                          <span className="font-medium text-blue-400">{post.language}</span>
-                        </div>
-                        <div className="text-gray-400">
-                          <span className="font-medium text-purple-400">{post.duration}</span>
-                        </div>
-                        <div className="text-gray-400">
-                          <span className="font-medium text-green-400">{post._count.likes}</span> curtidas
-                        </div>
-                        <a
-                          href={post.repoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300"
-                        >
-                          Ver repositório
-                        </a>
-                      </div>
-                    </div>
+                    <PostCard
+                      key={post.id}
+                      post={{
+                        ...post,
+                        user: {
+                          ...userData,
+                          id: userData.id
+                        },
+                        likeCount: post._count?.likes || 0
+                      }}
+                      onEdit={handlePostEdit}
+                      onDelete={handlePostDelete}
+                      onSelect={handlePostSelect}
+                      onLike={handlePostLike}
+                      canEdit={session?.user?.id === post.userId}
+                      isLiked={likedPostsMap[post.id] || false}
+                    />
                   ))}
                 </div>
               ) : (
@@ -268,48 +344,25 @@ export default function UserProfilePage() {
               )
             ) : (
               likedPosts.length > 0 ? (
-                <div className="grid gap-4">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {likedPosts.map(post => (
-                    <div key={post.id} className="bg-gray-700 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 relative rounded-full overflow-hidden">
-                          <Image
-                            src={post.user.image || "/icon/profile-icon.svg"}
-                            alt={post.user.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <span className="text-gray-300">{post.user.name}</span>
-                      </div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-white font-medium">{post.title}</h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-yellow-400">★</span>
-                          <span className="text-gray-300">{post.stars}</span>
-                        </div>
-                      </div>
-                      <p className="text-gray-300 mb-3">{post.description}</p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                        <div className="text-gray-400">
-                          <span className="font-medium text-blue-400">{post.language}</span>
-                        </div>
-                        <div className="text-gray-400">
-                          <span className="font-medium text-purple-400">{post.duration}</span>
-                        </div>
-                        <div className="text-gray-400">
-                          <span className="font-medium text-green-400">{post._count.likes}</span> curtidas
-                        </div>
-                        <a
-                          href={post.repoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300"
-                        >
-                          Ver repositório
-                        </a>
-                      </div>
-                    </div>
+                    <PostCard
+                      key={post.id}
+                      post={{
+                        ...post,
+                        user: post.user || {
+                          ...userData,
+                          id: userData.id
+                        },
+                        likeCount: post._count?.likes || 0
+                      }}
+                      onEdit={handlePostEdit}
+                      onDelete={handlePostDelete}
+                      onSelect={handlePostSelect}
+                      onLike={handlePostLike}
+                      canEdit={session?.user?.id === post.userId}
+                      isLiked={likedPostsMap[post.id] || false}
+                    />
                   ))}
                 </div>
               ) : (
@@ -319,6 +372,167 @@ export default function UserProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Post Selecionado */}
+      {selectedPost && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl overflow-y-auto max-h-[90vh]">
+            {/* Cabeçalho */}
+            <div className="flex justify-between items-start mb-8">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-white/90">{selectedPost.title}</h2>
+                
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const userId = selectedPost.user?.id || selectedPost.userId;
+                      console.log('Navegando para usuário:', userId);
+                      if (userId) {
+                        handleUserProfileClick(userId);
+                      } else {
+                        console.error('ID do usuário não encontrado');
+                      }
+                    }}
+                  >
+                    <img
+                      src={selectedPost.user?.image || "/icon/profile-icon.svg"}
+                      alt={selectedPost.user?.name || "User avatar"}
+                      className="h-10 w-10 rounded-full border border-white/10"
+                    />
+                  </div>
+                  <div
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const userId = selectedPost.user?.id || selectedPost.userId;
+                      console.log('Navegando para usuário:', userId);
+                      if (userId) {
+                        handleUserProfileClick(userId);
+                      } else {
+                        console.error('ID do usuário não encontrado');
+                      }
+                    }}
+                  >
+                    <p className="text-white/90 font-medium hover:text-blue-400 transition-colors">
+                      {selectedPost.user?.name}
+                    </p>
+                    <p className="text-sm text-white/60">Autor do Projeto</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Informações do Projeto */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-white/10 p-2 rounded-lg">
+                  <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-white/60">Linguagem</p>
+                  <p className="text-white/90 font-medium">{selectedPost.language}</p>
+                </div>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-white/10 p-2 rounded-lg">
+                  <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-white/60">Duração</p>
+                  <p className="text-white/90 font-medium">{selectedPost.duration}</p>
+                </div>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-white/10 p-2 rounded-lg">
+                  <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm text-white/60">Dificuldade</p>
+                  <div className="flex gap-1">
+                    {[...Array(selectedPost.stars)].map((_, i) => (
+                      <svg key={i} className="w-4 h-4 fill-yellow-400" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {selectedPost.repoUrl && (
+                <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-white/10 p-2 rounded-lg">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/60">Repositório</p>
+                    <a 
+                      href={selectedPost.repoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                    >
+                      Ver código no GitHub
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Descrição */}
+            <div className="space-y-6">
+              <div className="bg-white/5 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white/90 mb-4">Descrição do Projeto</h3>
+                <p className="text-white/80 leading-relaxed whitespace-pre-wrap">
+                  {selectedPost.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Botão de Like */}
+            <div className="mt-8 flex items-center gap-4">
+              <button 
+                onClick={() => handlePostLike(selectedPost.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill={likedPostsMap[selectedPost.id] ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={`${likedPostsMap[selectedPost.id] ? "text-red-500" : "text-white/60"}`}
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span className="text-white/80">{selectedPost.likeCount || 0} curtidas</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 } 
