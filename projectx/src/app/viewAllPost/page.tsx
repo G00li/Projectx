@@ -293,6 +293,54 @@ export default function Posts() {
     }
   };
 
+  const fetchLikeUsersWithoutModal = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/likes`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar usuários');
+      }
+
+      const data = await response.json();
+      setLikeUsers(data.users);
+    } catch (error) {
+      console.error('Erro ao buscar usuários que curtiram:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedPost) {
+      fetchLikeUsersWithoutModal(selectedPost.id);
+    }
+  }, [selectedPost]);
+
+  // Adicione esta função para lidar com o fechamento do modal
+  const handleCloseModal = () => {
+    setSelectedPost(null);
+    setLikeUsers([]);
+  };
+
+  // Adicione este useEffect para lidar com a tecla Esc
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCloseModal();
+      }
+    };
+
+    if (selectedPost) {
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [selectedPost]);
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
       <Toaster position="top-center" />
@@ -326,8 +374,14 @@ export default function Posts() {
       </div>
 
       {selectedPost && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl overflow-y-auto max-h-[90vh]">
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40"
+          onClick={handleCloseModal} // Fecha ao clicar no overlay
+        >
+          <div 
+            className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl overflow-y-auto max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()} // Impede que cliques no conteúdo fechem o modal
+          >
             {/* Cabeçalho */}
             <div className="flex justify-between items-start mb-8">
               <div className="space-y-4">
@@ -363,7 +417,7 @@ export default function Posts() {
               </div>
 
               <button
-                onClick={() => setSelectedPost(null)}
+                onClick={handleCloseModal}
                 className="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors"
               >
                 <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -397,9 +451,33 @@ export default function Posts() {
                     e.stopPropagation();
                     fetchLikeUsers(selectedPost.id);
                   }}
-                  className="text-white/80 hover:text-white transition-colors"
+                  className="group flex items-center gap-3 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 relative"
                 >
-                  {selectedPost.likeCount}
+                  <div className="flex items-center">
+                    <span className="font-semibold text-white/90 group-hover:text-white mr-2">
+                      {selectedPost.likeCount}
+                    </span>
+                    {selectedPost.likeCount > 0 && (
+                      <div className="flex -space-x-2 ml-1">
+                        {likeUsers.slice(0, 3).map((user) => (
+                          <img
+                            key={user.id}
+                            src={user.image || "https://github.com/shadcn.png"}
+                            alt={`${user.name}'s avatar`}
+                            className="w-6 h-6 rounded-full border-2 border-gray-900 transition-transform group-hover:scale-105"
+                          />
+                        ))}
+                        {selectedPost.likeCount > 3 && (
+                          <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-white/80 border-2 border-gray-900">
+                            +{selectedPost.likeCount - 3}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/10 backdrop-blur-sm px-2 py-1 rounded text-xs text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    Ver quem curtiu
+                  </div>
                 </button>
               </div>
             </div>
