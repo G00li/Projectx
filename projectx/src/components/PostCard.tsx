@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PostWithUser } from "../types/Post";
+import { useState } from "react";
 
 interface PostCardProps {
   post: PostWithUser;
@@ -24,6 +25,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, isLiked }: PostCardProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.location.href = `/user/${post.userId}`;
@@ -32,6 +35,18 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength).trim() + '...';
+  };
+
+  const handleEditClick = (event: Event) => {
+    event.preventDefault();
+    setIsMenuOpen(false);
+    onEdit(post, event as unknown as React.MouseEvent);
+  };
+
+  const handleDeleteClick = (event: Event) => {
+    event.preventDefault();
+    setIsMenuOpen(false);
+    onDelete(post.id, event as unknown as React.MouseEvent);
   };
 
   return (
@@ -49,7 +64,7 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
               e.preventDefault();
             }}
           >
-            <DropdownMenu modal={false}>
+            <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <DropdownMenuTrigger 
                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                 onClick={(e) => {
@@ -77,10 +92,7 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                 onClick={(e) => e.stopPropagation()}
               >
                 <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    onEdit(post, e as any);
-                  }}
+                  onSelect={handleEditClick}
                   className="hover:bg-white/10 cursor-pointer gap-2"
                 >
                   <svg
@@ -99,10 +111,7 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                   Editar
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    onDelete(post.id, e as any);
-                  }}
+                  onSelect={handleDeleteClick}
                   className="hover:bg-white/10 cursor-pointer gap-2"
                 >
                   <svg
