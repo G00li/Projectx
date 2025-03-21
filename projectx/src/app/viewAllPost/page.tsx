@@ -493,50 +493,96 @@ export default function Posts() {
       )}
 
       {editingPost && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-gray-900 p-6 rounded-2xl w-full max-w-md border border-white/10">
-            <h2 className="text-xl font-bold mb-4 text-white/90">Editar Post</h2>
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <input
-                type="text"
-                value={editingPost.title}
-                onChange={(e) => setEditingPost({...editingPost, title: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                placeholder="Título"
-              />
-              <textarea
-                value={editingPost.description}
-                onChange={(e) => setEditingPost({...editingPost, description: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white h-32"
-                placeholder="Descrição"
-              />
-              <input
-                type="text"
-                value={editingPost.language}
-                onChange={(e) => setEditingPost({...editingPost, language: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-                placeholder="Linguagem"
-              />
-              <input
-                type="text"
-                placeholder="Duração"
-                value={editingPost.duration}
-                onChange={(e) => setEditingPost({...editingPost, duration: e.target.value})}
-                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-              />
-              <div className="flex justify-end gap-3">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-2xl border border-white/10 shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white/90">Editar Projeto</h2>
+              <button
+                onClick={() => setEditingPost(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/70">Título do Projeto</label>
+                <input
+                  type="text"
+                  value={editingPost.title}
+                  onChange={(e) => setEditingPost({...editingPost, title: e.target.value})}
+                  className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-white placeholder-white/30"
+                  placeholder="Digite o título do projeto"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/70">Descrição</label>
+                <textarea
+                  value={editingPost.description}
+                  onChange={(e) => setEditingPost({...editingPost, description: e.target.value})}
+                  className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-white placeholder-white/30 min-h-[120px] resize-y"
+                  placeholder="Descreva seu projeto em detalhes"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/70">Linguagem</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={editingPost.language}
+                      onChange={(e) => setEditingPost({...editingPost, language: e.target.value})}
+                      className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-white placeholder-white/30"
+                      placeholder="ex: JavaScript, Python"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/70">Duração</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={editingPost.duration}
+                      onChange={(e) => setEditingPost({...editingPost, duration: e.target.value})}
+                      className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-white placeholder-white/30"
+                      placeholder="ex: 2 semanas, 3 meses"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setEditingPost(null)}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors duration-200"
+                  className="px-6 py-2.5 rounded-lg border border-white/10 hover:bg-white/5 text-white/80 hover:text-white transition-all duration-200 focus:ring-2 focus:ring-white/10"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+                  className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 focus:ring-2 focus:ring-blue-500/50 flex items-center gap-2"
                 >
-                  Salvar
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Salvar Alterações
                 </button>
               </div>
             </form>
