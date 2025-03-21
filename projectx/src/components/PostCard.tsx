@@ -24,6 +24,11 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, isLiked }: PostCardProps) {
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.location.href = `/user/${post.userId}`;
+  };
+
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -124,19 +129,20 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                     <img
                       src={post.user.image || "https://github.com/shadcn.png"}
                       alt={post.user.name || "User avatar"}
-                      className="h-8 w-8 rounded-full border border-white/10 cursor-pointer"
+                      className="h-8 w-8 rounded-full border border-white/10 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={handleUserClick}
                     />
                   </HoverCardTrigger>
                   <HoverCardContent className="w-80 bg-gray-900 border border-white/10 text-white">
                     <div className="flex justify-between space-x-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 cursor-pointer" onClick={handleUserClick}>
                         <img
                           src={post.user.image || "https://github.com/shadcn.png"}
                           alt={post.user.name || "User avatar"}
-                          className="h-12 w-12 rounded-full"
+                          className="h-12 w-12 rounded-full hover:opacity-80 transition-opacity"
                         />
                         <div>
-                          <h4 className="text-sm font-semibold text-white/90">{post.user.name}</h4>
+                          <h4 className="text-sm font-semibold text-white/90 hover:text-blue-400 transition-colors">{post.user.name}</h4>
                           <p className="text-xs text-white/60">Membro desde {post.user.createdAt ? new Date(post.user.createdAt).toLocaleDateString('pt-BR', {
                             day: '2-digit',
                             month: '2-digit',
@@ -147,7 +153,12 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                     </div>
                   </HoverCardContent>
                 </HoverCard>
-                <span className="text-sm text-white/70">{post.user.name}</span>
+                <span 
+                  className="text-sm text-white/70 cursor-pointer hover:text-blue-400 transition-colors"
+                  onClick={handleUserClick}
+                >
+                  {post.user.name}
+                </span>
               </div>
 
               <div className="flex flex-wrap items-center gap-3 mb-4">
