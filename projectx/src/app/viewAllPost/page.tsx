@@ -319,13 +319,29 @@ export default function Posts() {
                 <h2 className="text-3xl font-bold text-white/90">{selectedPost.title}</h2>
                 
                 <div className="flex items-center gap-2">
-                  <img
-                    src={selectedPost.user?.image || "https://github.com/shadcn.png"}
-                    alt={selectedPost.user?.name || "User avatar"}
-                    className="h-10 w-10 rounded-full border border-white/10"
-                  />
+                  <div 
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = `/user/${selectedPost.userId}`;
+                    }}
+                  >
+                    <img
+                      src={selectedPost.user?.image || "https://github.com/shadcn.png"}
+                      alt={selectedPost.user?.name || "User avatar"}
+                      className="h-10 w-10 rounded-full border border-white/10"
+                    />
+                  </div>
                   <div>
-                    <p className="text-white/90 font-medium">{selectedPost.user?.name}</p>
+                    <p 
+                      className="text-white/90 font-medium cursor-pointer hover:text-blue-400 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = `/user/${selectedPost.userId}`;
+                      }}
+                    >
+                      {selectedPost.user?.name}
+                    </p>
                     <p className="text-sm text-white/60">Autor do Projeto</p>
                   </div>
                 </div>
