@@ -3,6 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Link from "next/link";
 
 const LoginPage = () => {
   const { data: session } = useSession();
@@ -73,9 +74,9 @@ const LoginPage = () => {
 
             <p className="text-sm text-gray-400 text-center mt-6">
               Ao fazer login, você concorda com nossos
-              <a href="#" className="text-blue-400 hover:underline ml-1">
+              <Link href="/terms" className="text-blue-400 hover:underline ml-1">
                 Termos de Serviço
-              </a>
+              </Link>
             </p>
           </div>
         )}
