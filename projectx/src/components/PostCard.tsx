@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PostWithUser } from "../types/Post";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface PostCardProps {
   post: PostWithUser;
@@ -26,7 +26,7 @@ interface PostCardProps {
 
 export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, isLiked }: PostCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [userData, setUserData] = useState(post.user);
+  const [userData, setUserData] = useState(post.user || null);
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   
   const handleUserClick = (e: React.MouseEvent) => {
@@ -66,6 +66,13 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
       setIsLoadingUserData(false);
     }
   };
+
+  // Efeito para inicializar os dados do usuário
+  useEffect(() => {
+    if (!userData && post.userId) {
+      fetchUserData(post.userId);
+    }
+  }, [post.userId, userData]);
 
   return (
     <div className="relative group">
@@ -166,8 +173,8 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                   onMouseEnter={() => fetchUserData(post.userId)}
                 >
                   <img
-                    src={userData.image || "/icon/profile-icon.svg"}
-                    alt={userData.name || "User avatar"}
+                    src={userData?.image || post.user?.image || "/icon/profile-icon.svg"}
+                    alt={userData?.name || post.user?.name || "User avatar"}
                     className="h-8 w-8 rounded-full border border-white/10 hover:opacity-80 transition-opacity"
                     onClick={handleUserClick}
                   />
@@ -175,7 +182,7 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                     className="text-sm text-white/70 hover:text-blue-400 transition-colors"
                     onClick={handleUserClick}
                   >
-                    {userData.name}
+                    {userData?.name || post.user?.name || "Usuário"}
                   </span>
                 </div>
               </HoverCardTrigger>
@@ -187,17 +194,17 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center gap-3 cursor-pointer" onClick={handleUserClick}>
                     <img
-                      src={userData.image || "/icon/profile-icon.svg"}
-                      alt={userData.name || "User avatar"}
+                      src={userData?.image || post.user?.image || "/icon/profile-icon.svg"}
+                      alt={userData?.name || post.user?.name || "User avatar"}
                       className="h-16 w-16 rounded-full hover:opacity-80 transition-opacity border-2 border-blue-500/20"
                     />
                     <div>
                       <h4 className="text-lg font-semibold text-white/90 hover:text-blue-400 transition-colors">
-                        {userData.name}
+                        {userData?.name || post.user?.name || "Usuário"}
                       </h4>
                       <p className="text-sm text-white/60">
-                        Membro desde {userData.createdAt ? 
-                          new Date(userData.createdAt).toLocaleDateString('pt-BR', {
+                        Membro desde {(userData?.createdAt || post.user?.createdAt) ? 
+                          new Date(String(userData?.createdAt || post.user?.createdAt)).toLocaleDateString('pt-BR', {
                             month: 'long',
                             year: 'numeric'
                           }) : 'Data não disponível'}
@@ -220,11 +227,11 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                     ) : (
                       <>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-blue-400">{userData._count?.posts || 0}</p>
+                          <p className="text-2xl font-bold text-blue-400">{userData?._count?.posts || 0}</p>
                           <p className="text-sm text-white/60">Projetos</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-purple-400">{userData._count?.likes || 0}</p>
+                          <p className="text-2xl font-bold text-purple-400">{userData?._count?.likes || 0}</p>
                           <p className="text-sm text-white/60">Curtidas</p>
                         </div>
                       </>
@@ -232,9 +239,9 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                   </div>
 
                   <div className="flex gap-2">
-                    {userData.github && (
+                    {userData?.github && (
                       <a
-                        href={userData.github}
+                        href={userData?.github}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors text-sm text-white/80 hover:text-white"
@@ -246,9 +253,9 @@ export function PostCard({ post, onEdit, onDelete, onSelect, onLike, canEdit, is
                         GitHub
                       </a>
                     )}
-                    {userData.linkedin && (
+                    {userData?.linkedin && (
                       <a
-                        href={userData.linkedin}
+                        href={userData?.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors text-sm text-white/80 hover:text-white"

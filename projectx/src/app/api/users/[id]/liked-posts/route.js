@@ -3,56 +3,41 @@ import prisma from '@/lib/prisma';
 
 export async function GET(request, { params }) {
   try {
-    const userId = params.id;
+    // Aguarda os parâmetros serem resolvidos
+    const { id } = await params;
     
     const likedPosts = await prisma.post.findMany({
       where: {
         likes: {
           some: {
-            userId: userId
+            userId: id
           }
         }
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        language: true,
-        repoUrl: true,
-        duration: true,
-        stars: true,
-        createdAt: true,
-        likeCount: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true
-          }
-        },
-        _count: {
-          select: {
-            likes: true
-          }
-        }
+      include: {
+        user: true,
+        likes: true
       },
       orderBy: {
         createdAt: 'desc'
       }
     });
 
-    // Formatar as datas
-    const formattedPosts = likedPosts.map(post => ({
+    // Adiciona a contagem de likes para cada post
+    const postsWithLikeCount = likedPosts.map(post => ({
       ...post,
-      createdAt: post.createdAt.toISOString(),
+      likeCount: post.likes.length
     }));
 
-    return NextResponse.json(formattedPosts);
+    return new Response(JSON.stringify(postsWithLikeCount), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 200
+    });
   } catch (error) {
     console.error('Erro ao buscar posts curtidos:', error);
-    return NextResponse.json(
-      { error: 'Erro ao buscar posts curtidos pelo usuário' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Erro ao buscar posts curtidos' }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 500
+    });
   }
 } 
