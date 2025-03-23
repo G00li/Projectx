@@ -354,7 +354,7 @@ export default function UserProfilePage() {
                           ...userData,
                           id: userData.id
                         },
-                        likeCount: post._count?.likes || 0
+                        likeCount: post._count?.likes || post.likeCount || 0
                       }}
                       onEdit={handlePostEdit}
                       onDelete={handlePostDelete}
