@@ -8,9 +8,11 @@ import { PostWithUser } from "../../types/Post";
 import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
+import { useRouter } from "next/navigation";
 
 export default function Posts() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [posts, setPosts] = useState<PostWithUser[]>([]);
   const [editingPost, setEditingPost] = useState<PostWithUser | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
@@ -23,6 +25,24 @@ export default function Posts() {
   const [showLikesModal, setShowLikesModal] = useState<boolean>(false);
   const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/pages/BemVindo");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   const fetchPosts = async (showLoading = false) => {
     try {
