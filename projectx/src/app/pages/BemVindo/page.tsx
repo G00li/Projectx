@@ -98,7 +98,7 @@ const BemVindo = () => {
               e descubra projetos inspiradores. Crie sua conta agora e comece a destacar 
               seu trabalho!
             </p>
-            <Link href="/api/auth/signin">
+            <Link href="/loginPage">
               <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium 
                 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/20">
                 Começar Agora
