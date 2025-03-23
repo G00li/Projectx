@@ -7,6 +7,8 @@ import axios from 'axios';
 import LoadingScreen from '@/components/LoadingScreen';
 import { PostCard } from '@/components/PostCard';
 import { useSession } from "next-auth/react";
+import toast from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 export default function UserProfilePage() {
   const { data: session } = useSession();
@@ -20,6 +22,8 @@ export default function UserProfilePage() {
   const [error, setError] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [likedPostsMap, setLikedPostsMap] = useState({});
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likeUsers, setLikeUsers] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -103,6 +107,11 @@ export default function UserProfilePage() {
 
   const handlePostLike = async (postId) => {
     try {
+      if (!session?.user) {
+        toast.error('Você precisa estar logado para curtir posts');
+        return;
+      }
+
       const response = await fetch(`/api/posts/${postId}/like`, {
         method: 'POST',
         headers: {
@@ -132,8 +141,26 @@ export default function UserProfilePage() {
       
       setUserPosts(updatePosts(userPosts));
       setLikedPosts(updatePosts(likedPosts));
+
+      // Atualiza o post selecionado se ele existir
+      if (selectedPost && selectedPost.id === postId) {
+        setSelectedPost(prev => ({
+          ...prev,
+          likeCount: data.likeCount
+        }));
+
+        // Atualiza a lista de usuários que curtiram
+        await fetchLikeUsersWithoutModal(postId);
+      }
+
+      // Feedback visual para o usuário
+      toast.success(data.isLiked ? 'Post curtido! ❤️' : 'Like removido! 💔', {
+        duration: 1500
+      });
+
     } catch (error) {
       console.error('Erro ao processar like:', error);
+      toast.error('Erro ao processar like');
     }
   };
 
@@ -174,6 +201,52 @@ export default function UserProfilePage() {
   const handleUserProfileClick = (userId) => {
     router.push(`/user/${userId}`);
   };
+
+  const fetchLikeUsers = async (postId) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/likes`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar usuários');
+      }
+
+      const data = await response.json();
+      setLikeUsers(data.users);
+      setShowLikesModal(true);
+    } catch (error) {
+      console.error('Erro ao buscar usuários que curtiram:', error);
+      toast.error('Erro ao carregar usuários');
+    }
+  };
+
+  const fetchLikeUsersWithoutModal = async (postId) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/likes`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar usuários');
+      }
+
+      const data = await response.json();
+      setLikeUsers(data.users);
+    } catch (error) {
+      console.error('Erro ao buscar usuários que curtiram:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedPost) {
+      fetchLikeUsersWithoutModal(selectedPost.id);
+    }
+  }, [selectedPost]);
 
   if (loading) {
     return <LoadingScreen message="Carregando perfil do usuário..." />;
@@ -328,7 +401,7 @@ export default function UserProfilePage() {
                           ...userData,
                           id: userData.id
                         },
-                        likeCount: post._count?.likes || 0
+                        likeCount: post._count?.likes || post.likeCount || 0
                       }}
                       onEdit={handlePostEdit}
                       onDelete={handlePostDelete}
@@ -375,8 +448,14 @@ export default function UserProfilePage() {
 
       {/* Modal de Post Selecionado */}
       {selectedPost && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl overflow-y-auto max-h-[90vh]">
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40"
+          onClick={() => setSelectedPost(null)}
+        >
+          <div 
+            className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl overflow-y-auto max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Cabeçalho */}
             <div className="flex justify-between items-start mb-8">
               <div className="space-y-4">
@@ -388,11 +467,8 @@ export default function UserProfilePage() {
                     onClick={(e) => {
                       e.stopPropagation();
                       const userId = selectedPost.user?.id || selectedPost.userId;
-                      console.log('Navegando para usuário:', userId);
                       if (userId) {
                         handleUserProfileClick(userId);
-                      } else {
-                        console.error('ID do usuário não encontrado');
                       }
                     }}
                   >
@@ -402,20 +478,17 @@ export default function UserProfilePage() {
                       className="h-10 w-10 rounded-full border border-white/10"
                     />
                   </div>
-                  <div
-                    className="cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const userId = selectedPost.user?.id || selectedPost.userId;
-                      console.log('Navegando para usuário:', userId);
-                      if (userId) {
-                        handleUserProfileClick(userId);
-                      } else {
-                        console.error('ID do usuário não encontrado');
-                      }
-                    }}
-                  >
-                    <p className="text-white/90 font-medium hover:text-blue-400 transition-colors">
+                  <div>
+                    <p 
+                      className="text-white/90 font-medium cursor-pointer hover:text-blue-400 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const userId = selectedPost.user?.id || selectedPost.userId;
+                        if (userId) {
+                          handleUserProfileClick(userId);
+                        }
+                      }}
+                    >
                       {selectedPost.user?.name}
                     </p>
                     <p className="text-sm text-white/60">Autor do Projeto</p>
@@ -431,6 +504,62 @@ export default function UserProfilePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+            </div>
+
+            {/* Botão de like com visualização de usuários */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handlePostLike(selectedPost.id)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill={likedPostsMap[selectedPost.id] ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className={`${likedPostsMap[selectedPost.id] ? "text-red-500" : "text-white/60"}`}
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fetchLikeUsers(selectedPost.id);
+                  }}
+                  className="group flex items-center gap-3 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 relative"
+                >
+                  <div className="flex items-center">
+                    <span className="font-semibold text-white/90 group-hover:text-white mr-2">
+                      {selectedPost.likeCount || 0}
+                    </span>
+                    {selectedPost.likeCount > 0 && (
+                      <div className="flex -space-x-2 ml-1">
+                        {likeUsers.slice(0, 3).map((user) => (
+                          <img
+                            key={user.id}
+                            src={user.image || "/icon/profile-icon.svg"}
+                            alt={`${user.name}'s avatar`}
+                            className="w-6 h-6 rounded-full border-2 border-gray-900 transition-transform group-hover:scale-105"
+                          />
+                        ))}
+                        {selectedPost.likeCount > 3 && (
+                          <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-white/80 border-2 border-gray-900">
+                            +{selectedPost.likeCount - 3}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/10 backdrop-blur-sm px-2 py-1 rounded text-xs text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    Ver quem curtiu
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* Informações do Projeto */}
@@ -508,31 +637,46 @@ export default function UserProfilePage() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* Botão de Like */}
-            <div className="mt-8 flex items-center gap-4">
-              <button 
-                onClick={() => handlePostLike(selectedPost.id)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+      {/* Modal de Likes */}
+      {showLikesModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl w-full max-w-md border border-white/10">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white/90">Usuários que curtiram</h3>
+              <button
+                onClick={() => setShowLikesModal(false)}
+                className="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill={likedPostsMap[selectedPost.id] ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className={`${likedPostsMap[selectedPost.id] ? "text-red-500" : "text-white/60"}`}
-                >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <span className="text-white/80">{selectedPost.likeCount || 0} curtidas</span>
               </button>
+            </div>
+            
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+              {likeUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-3 bg-white/5 p-3 rounded-lg">
+                  <img
+                    src={user.image || "/icon/profile-icon.svg"}
+                    alt={`${user.name}'s avatar`}
+                    className="h-10 w-10 rounded-full border border-white/10"
+                  />
+                  <span className="text-white/90">{user.name}</span>
+                </div>
+              ))}
+              {likeUsers.length === 0 && (
+                <p className="text-center text-white/60 py-4">Nenhuma curtida ainda</p>
+              )}
             </div>
           </div>
         </div>
       )}
+
+      <Toaster position="top-center" />
     </main>
   );
 } 
