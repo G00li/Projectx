@@ -1,0 +1,16 @@
+{
+  "id": "mig_cutlbm3mb63o7mcm6e20",
+  "parentID": "mig_cutlbgjmb63o7mcm6e10",
+  "checksum": "1:91e550a37ed674cf22bb8bf315a99f4f0d4e6f4074bc099ab647a42243cedeee",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Linguagem",
+          "type": "text"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

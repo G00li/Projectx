@@ -1,0 +1,14 @@
+{
+  "id": "mig_cutlqrcfbbqjrf2nsb8g",
+  "parentID": "mig_cutlqou0tnqbju14bju0",
+  "checksum": "1:382d5d699042339c4530cc10e252c33bf3a073f7594a40771d50b67f1d77818e",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "stars",
+        "oldName": "Estrelas",
+        "table": "posts"
+      }
+    }
+  ]
+}

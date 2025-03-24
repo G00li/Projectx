@@ -1,0 +1,18 @@
+{
+  "id": "mig_cutlb1cfbbqjrf2nsb20",
+  "parentID": "mig_cutla2bmb63o7mcm6dv0",
+  "checksum": "1:96dd319f6447c108fe6525c30d74e81d89214d21dc375c74580dc436de427695",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "title",
+          "type": "text",
+          "notNull": true,
+          "defaultValue": "Projeto"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

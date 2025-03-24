@@ -1,0 +1,18 @@
+{
+  "id": "mig_cutlcou0tnqbju14bjng",
+  "parentID": "mig_cutlcf3mb63o7mcm6e40",
+  "checksum": "1:9333a7ae732bb16065f562f9ea8171cefd492da0a2c072c42c583a4c07eb9200",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Criacao",
+          "type": "datetime",
+          "notNull": true,
+          "defaultValue": "now"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

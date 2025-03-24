@@ -1,6 +1,8 @@
 export const NAV_LINKS = [
-  { href: '/', key: 'home', label: 'Home', icon: '/icon/home-icon.svg' },
-  { href: '/createPost', key: 'CreatePost', label: 'Create Posts', icon: '/icon/new-post.svg' },
-  { href: '/search', key: 'Search', label: 'Search', icon: '/icon/search-icon.svg' },
-  { href: '/profile', key: 'Profile', label: 'Profile', icon: '/icon/profile-icon.svg' },
+  { href: '/viewAllPost', key: 'ViewAllPosts', label: 'Todos os Posts', icon: '/icon/sidebar/viewAllPosts-icon.svg' },
+  { href: '/createPost', key: 'CreatePost', label: 'Criar Post', icon: '/icon/sidebar/create-post.svg' },
+  { href: '/search', key: 'Search', label: 'Pesquisar Usuários', icon: '/icon/sidebar/search-icon.svg' },
+  { href: '/myPosts', key: 'ViewPost', label: 'Meus Posts', icon: '/icon/sidebar/myPosts-icon.svg' },
+  { href: '/saved', key: 'Saved', label: 'Posts Salvos', icon: '/icon/sidebar/guardado-icon.svg' },
+  { href: '/pages/profile', key: 'Profile', label: 'Perfil', icon: '/icon/sidebar/profile-icon.svg' },
 ];

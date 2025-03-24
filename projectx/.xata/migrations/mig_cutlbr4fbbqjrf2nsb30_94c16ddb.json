@@ -1,0 +1,16 @@
+{
+  "id": "mig_cutlbr4fbbqjrf2nsb30",
+  "parentID": "mig_cutlbm3mb63o7mcm6e20",
+  "checksum": "1:94c16ddbb078ac4cd3bc7325e5d9464f98872a631494d92f506a735fa7b9485b",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Repositorio",
+          "type": "text"
+        },
+        "table": "posts"
+      }
+    }
+  ]
+}

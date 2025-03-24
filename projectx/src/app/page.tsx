@@ -1,6 +1,6 @@
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  return (
-    <h1>Olá Mundo</h1>
-  );
+  // Redireciona para a página de posts após logar 
+  redirect('/viewAllPost');
 }

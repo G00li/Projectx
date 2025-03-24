@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  birthDate     DateTime?
+  address       String?
+  github        String?
+  linkedin      String?
+  createdAt     DateTime  @default(now())
+  image         String?
+  emailVerified DateTime?
+  accounts      Account[]
+  posts         Post[]
+  sessions      Session[]
+  cookieConsent  Boolean @default(false)
+  cookieConsentAt DateTime?
+  likes         Like[]
+}
+
+model Post {
+  id          String   @id
+  userId      String
+  title       String
+  description String
+  language    String
+  repoUrl     String
+  duration    String
+  stars       Int      @default(1)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes       Like[]
+  likeCount   Int      @default(0)
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  id_token          String?
+  scope             String?
+  session_state     String?
+  token_type        String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}

@@ -1,0 +1,11 @@
+{
+  "id": "mig_cutla2bmb63o7mcm6dv0",
+  "checksum": "1:bee47bca7bd7634cc0cadd988acabd9dde5c9c6610c42ea37453610820258aee",
+  "operations": [
+    {
+      "addTable": {
+        "table": "posts"
+      }
+    }
+  ]
+}
