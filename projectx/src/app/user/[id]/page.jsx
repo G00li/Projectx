@@ -659,7 +659,14 @@ export default function UserProfilePage() {
             
             <div className="space-y-4 max-h-[60vh] overflow-y-auto">
               {likeUsers.map((user) => (
-                <div key={user.id} className="flex items-center gap-3 bg-white/5 p-3 rounded-lg">
+                <div 
+                  key={user.id} 
+                  className="flex items-center gap-3 bg-white/5 p-3 rounded-lg hover:bg-white/10 cursor-pointer transition-colors"
+                  onClick={() => {
+                    handleUserProfileClick(user.id);
+                    setShowLikesModal(false);
+                  }}
+                >
                   <img
                     src={user.image || "/icon/profile-icon.svg"}
                     alt={`${user.name}'s avatar`}
