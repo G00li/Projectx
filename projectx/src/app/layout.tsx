@@ -8,6 +8,7 @@ import AuthWrapper from "../components/AuthWrapper";
 import CookieConsent from "@/components/CookieConsent";
 import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
 import SideBar from "@/components/SideBar";
+import { useState, useEffect } from "react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,6 +42,18 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const { sidebarWidth } = useSidebar();
   const {status} = useSession();
   const isAuthenticated = status === "authenticated";
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
     <>
@@ -48,10 +61,14 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
       <div className="flex">
         {isAuthenticated && <SideBar />}
         <main 
-          className="flex-1"
-          style={{ marginLeft: isAuthenticated ? `${sidebarWidth}px` : "2" }}
+          className="flex-1 transition-all duration-300"
+          style={{ 
+            marginLeft: isAuthenticated && !isMobile ? `${sidebarWidth}px` : "0" 
+          }}
         >
-          {children}
+          <div className={`${isAuthenticated ? 'md:pb-0 pb-[84px]' : ''}`}>
+            {children}
+          </div>
         </main> 
       </div>
       <CookieConsent />
