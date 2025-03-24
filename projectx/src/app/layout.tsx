@@ -1,6 +1,6 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import { SessionProvider, useSession } from "next-auth/react";
@@ -9,15 +9,9 @@ import CookieConsent from "@/components/CookieConsent";
 import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
 import SideBar from "@/components/SideBar";
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export default function RootLayout({
@@ -29,8 +23,8 @@ export default function RootLayout({
         <title>Projeto X</title>
       </head>
 
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased pt-[61px]`}>
-      <script defer src="https://cloud.umami.is/script.js" data-website-id="32bcc95d-cdca-4f1c-8025-ebc8ff9b0234"></script>
+      <body className={`${inter.variable} antialiased pt-[61px]`}>
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="32bcc95d-cdca-4f1c-8025-ebc8ff9b0234"></script>
         <SessionProvider>
           <AuthWrapper>
             <SidebarProvider>

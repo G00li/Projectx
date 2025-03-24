@@ -1,88 +1,68 @@
 import { getServerSession } from "next-auth/next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/app/api/auth/auth.config";
 
+// Removendo todas as tipagens customizadas e usando apenas o básico
 export async function POST(
-  request: Request,
-  context: { params: { id: string } }
+  req: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { id } = await Promise.resolve(context.params); // Aguarda os parâmetros
+    const { id } = params;
     
     if (!session?.user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
     const userId = session.user.id;
-
-    // Verifica se o post existe
-    const post = await prisma.post.findUnique({
-      where: { id },
-    });
+    const post = await prisma.post.findUnique({ where: { id } });
 
     if (!post) {
       return NextResponse.json({ error: "Post não encontrado" }, { status: 404 });
     }
 
-    // Verifica se já existe um like
     const existingLike = await prisma.like.findUnique({
       where: {
-        postId_userId: {
-          postId: id,
-          userId,
-        },
-      },
+        postId_userId: { postId: id, userId }
+      }
     });
 
     if (existingLike) {
-      // Remove o like
-      await prisma.$transaction([
+      const [, updatedPost] = await prisma.$transaction([
         prisma.like.delete({
-          where: {
-            id: existingLike.id,
-          },
+          where: { id: existingLike.id }
         }),
         prisma.post.update({
           where: { id },
-          data: {
-            likeCount: {
-              decrement: 1,
-            },
-          },
-        }),
+          data: { likeCount: { decrement: 1 } },
+          select: { likeCount: true }
+        })
       ]);
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         message: "Like removido com sucesso",
         isLiked: false,
-        likeCount: post.likeCount - 1
+        likeCount: updatedPost.likeCount
       });
     }
 
-    // Adiciona novo like
-    await prisma.$transaction([
+    const [, updatedPost] = await prisma.$transaction([
       prisma.like.create({
-        data: {
-          postId: id,
-          userId,
-        },
+        data: { postId: id, userId }
       }),
       prisma.post.update({
         where: { id },
-        data: {
-          likeCount: {
-            increment: 1,
-          },
-        },
-      }),
+        data: { likeCount: { increment: 1 } },
+        select: { likeCount: true }
+      })
     ]);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Like adicionado com sucesso",
       isLiked: true,
-      likeCount: post.likeCount + 1
+      likeCount: updatedPost.likeCount
     });
   } catch (error) {
     console.error("[LIKE_POST]", error);
@@ -91,20 +71,17 @@ export async function POST(
 }
 
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  req: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { id } = await Promise.resolve(context.params);
+    const { id } = params;
 
-    // Se a requisição vier da rota /likes, retorna a lista de usuários que curtiram
-    const url = new URL(request.url);
+    const url = new URL(req.url);
     if (url.pathname.endsWith('/likes')) {
       const likes = await prisma.like.findMany({
-        where: {
-          postId: id
-        },
+        where: { postId: id },
         include: {
           user: {
             select: {
@@ -116,24 +93,20 @@ export async function GET(
         }
       });
 
-      const users = likes.map(like => like.user);
-      return NextResponse.json({ users });
+      return NextResponse.json({ users: likes.map(like => like.user) });
     }
 
-    // Caso contrário, mantém o comportamento original de verificar o status do like
     if (!session?.user) {
       return NextResponse.json({ isLiked: false });
     }
-
-    const userId = session.user.id;
 
     const like = await prisma.like.findUnique({
       where: {
         postId_userId: {
           postId: id,
-          userId,
-        },
-      },
+          userId: session.user.id
+        }
+      }
     });
 
     return NextResponse.json({ isLiked: !!like });

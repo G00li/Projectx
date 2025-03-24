@@ -2,10 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 
+// Força a rota a ser dinâmica pois usa parâmetros de busca
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q') || '';
+    // Usando nextUrl.searchParams em vez de new URL()
+    const query = request.nextUrl.searchParams.get('q') || '';
 
     const users = await prisma.user.findMany({
       where: {
@@ -35,20 +38,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(users);
   } catch (error) {
-    console.error('Erro detalhado ao buscar usuários:', {
-      message: error instanceof Error ? error.message : 'Erro desconhecido',
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
-    }
+    console.error('Erro ao buscar usuários:', error instanceof Error ? {
+      message: error.message,
+      stack: error.stack
+    } : 'Erro desconhecido');
 
     return NextResponse.json(
-      { error: 'Erro interno ao buscar usuários' },
+      { 
+        error: error instanceof Error ? error.message : 'Erro interno ao buscar usuários'
+      },
       { status: 500 }
     );
   }
