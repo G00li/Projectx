@@ -37,7 +37,7 @@ export default function Posts() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/pages/BemVindo");
+      router.push("/bemVindo");
     }
   }, [status, router]);
 

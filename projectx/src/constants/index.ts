@@ -4,5 +4,5 @@ export const NAV_LINKS = [
   { href: '/search', key: 'Search', label: 'Pesquisar Usuários', icon: '/icon/sidebar/search-icon.svg' },
   { href: '/myPosts', key: 'ViewPost', label: 'Meus Posts', icon: '/icon/sidebar/myPosts-icon.svg' },
   { href: '/saved', key: 'Saved', label: 'Posts Salvos', icon: '/icon/sidebar/guardado-icon.svg' },
-  { href: '/pages/profile', key: 'Profile', label: 'Perfil', icon: '/icon/sidebar/profile-icon.svg' },
+  { href: '/profile', key: 'Profile', label: 'Perfil', icon: '/icon/sidebar/profile-icon.svg' },
 ];
