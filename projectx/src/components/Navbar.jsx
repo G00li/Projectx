@@ -45,7 +45,7 @@ const Navbar = () => {
       {session ? (
         <div className="flex items-center gap-2 px-3 md:px-5">
           <Link 
-            href="../pages/profile" 
+            href="../profile" 
             className="flex items-center gap-2 md:gap-3 group p-2 rounded-xl transition-all duration-300 hover:bg-white/5"
           >
             <span className="hidden md:block text-gray-300 transition-all duration-300 group-hover:text-blue-400">

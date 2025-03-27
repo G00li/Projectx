@@ -11,7 +11,7 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/pages/BemVindo");
+      router.push("/bemVindo");
     }
   }, [status, router]);
 

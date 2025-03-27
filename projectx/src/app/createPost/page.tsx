@@ -6,6 +6,10 @@ import { Post } from "@prisma/client";
 import { createPost } from "@/services/postService";
 import { useSession } from "next-auth/react";
 import toast, { Toaster } from 'react-hot-toast';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { differenceInDays, differenceInMonths } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
 
 export default function CreatePost() {
   const router = useRouter();
@@ -21,10 +25,16 @@ export default function CreatePost() {
     duration: "",
     stars: 1,
     likeCount: 0,
+    startDate: new Date(),
+    endDate: new Date(),
   });
 
   const [hoveredStar, setHoveredStar] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dates, setDates] = useState({
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,9 +65,21 @@ export default function CreatePost() {
       return;
     }
 
+    if (!dates.startDate || !dates.endDate) {
+      toast.error('Por favor, selecione as datas de início e término do projeto');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      const postToCreate = {
+        ...postData,
+        startDate: dates.startDate,
+        endDate: dates.endDate,
+      };
+
       await toast.promise(
-        createPost(postData),
+        createPost(postToCreate),
         {
           loading: 'Criando post...',
           success: 'Post criado com sucesso! 🎉',
@@ -109,6 +131,26 @@ export default function CreatePost() {
         </div>
       </div>
     );
+  };
+
+  // Função para calcular e atualizar a duração
+  const updateDuration = (start: Date | undefined, end: Date | undefined) => {
+    if (start && end) {
+      const days = differenceInDays(end, start);
+      const months = differenceInMonths(end, start);
+      
+      let duration = "";
+      if (months > 0) {
+        duration = `${months} ${months === 1 ? 'mês' : 'meses'}`;
+        if (days % 30 > 0) {
+          duration += ` e ${days % 30} ${days % 30 === 1 ? 'dia' : 'dias'}`;
+        }
+      } else {
+        duration = `${days} ${days === 1 ? 'dia' : 'dias'}`;
+      }
+      
+      setPostData({ ...postData, duration });
+    }
   };
 
   return (
@@ -186,19 +228,70 @@ export default function CreatePost() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="duration" className="text-sm font-medium text-white/80 flex items-center gap-2">
-                    Duração do Projeto *
+                  <label className="text-sm font-medium text-white/80 flex items-center gap-2">
+                    Período do Projeto *
                   </label>
-                  <input
-                    id="duration"
-                    type="text"
-                    placeholder="Ex: 2 semanas, 3 meses..."
-                    value={postData.duration}
-                    onChange={(e) => setPostData({ ...postData, duration: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
-                    focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
-
-                  />
+                  <div className="flex flex-col gap-2 min-h-[120px]">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <DatePicker
+                        selected={dates.startDate}
+                        onChange={(date: Date | null) => {
+                          setDates({ ...dates, startDate: date || undefined });
+                          updateDuration(date || undefined, dates.endDate);
+                        }}
+                        selectsStart
+                        startDate={dates.startDate}
+                        endDate={dates.endDate}
+                        locale={ptBR}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Data de início"
+                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
+                        focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                        maxDate={new Date()}
+                      />
+                      <DatePicker
+                        selected={dates.endDate}
+                        onChange={(date: Date | null) => {
+                          setDates({ ...dates, endDate: date || undefined });
+                          updateDuration(dates.startDate, date || undefined);
+                        }}
+                        selectsEnd
+                        startDate={dates.startDate}
+                        endDate={dates.endDate}
+                        minDate={dates.startDate}
+                        locale={ptBR}
+                        dateFormat="dd/MM/yyyy"
+                        placeholderText="Data de término"
+                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
+                        focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                        maxDate={new Date()}
+                      />
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 min-h-[40px]">
+                      {(dates.startDate || dates.endDate) && (
+                        <>
+                          <span className="text-sm text-white/60">
+                            Duração calculada: {postData.duration}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDates({ startDate: undefined, endDate: undefined });
+                              setPostData({ ...postData, duration: '' });
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 
+                            bg-red-400/10 hover:bg-red-400/20 rounded-lg transition-all duration-200
+                            w-full sm:w-auto justify-center sm:justify-start"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            Limpar datas
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-1 md:col-span-2 items-center justify-center">
                   <StarRating />

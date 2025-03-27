@@ -9,12 +9,17 @@ import toast from 'react-hot-toast';
 import { Toaster } from 'react-hot-toast';
 import { PostCardSkeleton } from "@/components/PostCardSkeleton";
 import { useRouter } from "next/navigation";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { differenceInDays, differenceInMonths } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
 
 export default function Posts() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [posts, setPosts] = useState<PostWithUser[]>([]);
   const [editingPost, setEditingPost] = useState<PostWithUser | null>(null);
+  const [hoveredStar, setHoveredStar] = useState<number>(0);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<PostWithUser | null>(null);
   const CACHE_KEY = 'cached_posts';
@@ -25,10 +30,14 @@ export default function Posts() {
   const [showLikesModal, setShowLikesModal] = useState<boolean>(false);
   const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dates, setDates] = useState({
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+  });
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/pages/BemVindo");
+      router.push("/bemVindo");
     }
   }, [status, router]);
 
@@ -167,8 +176,12 @@ export default function Posts() {
   };
 
   const handleEdit = async (post: PostWithUser, e: React.MouseEvent) => {
-    e.stopPropagation(); // Impede a propagação do evento
+    e.stopPropagation();
     setEditingPost(post);
+    setDates({
+      startDate: post.startDate,
+      endDate: post.endDate,
+    });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -177,9 +190,20 @@ export default function Posts() {
       if (!editingPost) {
         throw new Error('Post não encontrado');
       }
+
+      if (!dates.startDate || !dates.endDate) {
+        toast.error('Por favor, selecione as datas de início e término do projeto');
+        return;
+      }
+      
+      const postToUpdate = {
+        ...editingPost,
+        startDate: dates.startDate,
+        endDate: dates.endDate,
+      };
       
       const updatedPost = await toast.promise(
-        updatePost(editingPost.id, editingPost),
+        updatePost(editingPost.id, postToUpdate),
         {
           loading: 'Atualizando post...',
           success: 'Post atualizado com sucesso! ✨',
@@ -187,11 +211,11 @@ export default function Posts() {
         }
       );
       
-      // Atualiza o post mantendo a ordem original
       setPosts(prevPosts => 
         prevPosts.map(post => post.id === editingPost.id ? updatedPost : post)
       );
       setEditingPost(null);
+      setDates({ startDate: undefined, endDate: undefined });
     } catch (error) {
       console.error('Erro ao atualizar post:', error);
     }
@@ -361,6 +385,28 @@ export default function Posts() {
     };
   }, [selectedPost]);
 
+  // Função para calcular e atualizar a duração
+  const updateDuration = (start: Date | undefined, end: Date | undefined) => {
+    if (start && end) {
+      const days = differenceInDays(end, start);
+      const months = differenceInMonths(end, start);
+      
+      let duration = "";
+      if (months > 0) {
+        duration = `${months} ${months === 1 ? 'mês' : 'meses'}`;
+        if (days % 30 > 0) {
+          duration += ` e ${days % 30} ${days % 30 === 1 ? 'dia' : 'dias'}`;
+        }
+      } else {
+        duration = `${days} ${days === 1 ? 'dia' : 'dias'}`;
+      }
+      
+      if (editingPost) {
+        setEditingPost({ ...editingPost, duration });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col">
       <Toaster position="top-center" />
@@ -395,12 +441,12 @@ export default function Posts() {
 
       {selectedPost && (
         <div 
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40"
-          onClick={handleCloseModal} // Fecha ao clicar no overlay
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 z-40 overflow-y-auto"
+          onClick={handleCloseModal}
         >
           <div 
-            className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl overflow-y-auto max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()} // Impede que cliques no conteúdo fechem o modal
+            className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-8 rounded-2xl w-full max-w-4xl border border-white/10 shadow-xl my-4 sm:my-8"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Cabeçalho */}
             <div className="flex justify-between items-start mb-8">
@@ -591,8 +637,8 @@ export default function Posts() {
       )}
 
       {editingPost && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl w-full max-w-2xl border border-white/10 shadow-2xl">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-8 rounded-2xl w-full max-w-2xl border border-white/10 shadow-2xl my-4 sm:my-8">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white/90">Editar Projeto</h2>
               <button
@@ -605,7 +651,7 @@ export default function Posts() {
               </button>
             </div>
 
-            <form onSubmit={handleUpdate} className="space-y-6">
+            <form onSubmit={handleUpdate} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-white/70">Título do Projeto</label>
                 <input
@@ -647,22 +693,142 @@ export default function Posts() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/70">Duração</label>
+                  <label className="text-sm font-medium text-white/70">Dificuldade</label>
+                  <div className="flex items-center justify-center bg-white/5 rounded-lg py-3 border border-white/10">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setEditingPost({ ...editingPost, stars: star })}
+                        onMouseEnter={() => setHoveredStar(star)}
+                        onMouseLeave={() => setHoveredStar(0)}
+                        className="focus:outline-none p-0.5 hover:scale-110 transition-transform duration-200"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          className={`w-8 h-8 transition-colors duration-200 ${
+                            hoveredStar > 0
+                              ? star <= hoveredStar
+                                ? "fill-yellow-400"
+                                : "fill-gray-500"
+                              : star <= editingPost.stars
+                                ? "fill-yellow-400"
+                                : "fill-gray-500"
+                          }`}
+                        >
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/70">URL do GitHub</label>
                   <div className="relative">
                     <input
                       type="text"
-                      value={editingPost.duration}
-                      onChange={(e) => setEditingPost({...editingPost, duration: e.target.value})}
+                      value={editingPost.repoUrl || ''}
+                      onChange={(e) => setEditingPost({...editingPost, repoUrl: e.target.value})}
                       className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-white placeholder-white/30"
-                      placeholder="ex: 2 semanas, 3 meses"
+                      placeholder="https://github.com/seu-usuario/seu-repo"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg className="w-5 h-5 text-white/30" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                       </svg>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-white/70">Período do Projeto</label>
+                  {(dates.startDate || dates.endDate) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDates({ startDate: undefined, endDate: undefined });
+                        if (editingPost) {
+                          setEditingPost({ ...editingPost, duration: '' });
+                        }
+                      }}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 
+                      bg-red-400/10 hover:bg-red-400/20 rounded-lg transition-all duration-200"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                      Limpar datas
+                    </button>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <DatePicker
+                      selected={dates.startDate}
+                      onChange={(date: Date | null) => {
+                        setDates({ ...dates, startDate: date || undefined });
+                        updateDuration(date || undefined, dates.endDate);
+                      }}
+                      selectsStart
+                      startDate={dates.startDate}
+                      endDate={dates.endDate}
+                      locale={ptBR}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="Data de início"
+                      className="w-full px-4 py-3 pr-10 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
+                      focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                      maxDate={new Date()}
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <DatePicker
+                      selected={dates.endDate}
+                      onChange={(date: Date | null) => {
+                        setDates({ ...dates, endDate: date || undefined });
+                        updateDuration(dates.startDate, date || undefined);
+                      }}
+                      selectsEnd
+                      startDate={dates.startDate}
+                      endDate={dates.endDate}
+                      minDate={dates.startDate}
+                      locale={ptBR}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="Data de término"
+                      className="w-full px-4 py-3 pr-10 rounded-lg bg-white/5 border border-white/10 focus:ring-2 
+                      focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-white"
+                      maxDate={new Date()}
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {(dates.startDate || dates.endDate) && (
+                  <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm text-white/80">
+                      Duração calculada: <span className="text-white font-medium">{editingPost?.duration}</span>
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="pt-6 flex justify-end gap-3">
@@ -733,8 +899,8 @@ export default function Posts() {
       )}
 
       {showLikesModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl w-full max-w-md border border-white/10">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-6 rounded-2xl w-full max-w-md border border-white/10 my-4 sm:my-8">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-white/90">Usuários que curtiram</h3>
               <button

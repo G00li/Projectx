@@ -107,7 +107,16 @@ const SideBar = () => {
           {/* Botão de Sair */}
           <div className="mt-auto mb-4 w-full px-2">
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={async () => {
+                try {
+                  await signOut({
+                    callbackUrl: '/bemvindo',
+                    redirect: true
+                  });
+                } catch (error) {
+                  console.error('Erro ao fazer logout:', error);
+                }
+              }}
               className={`w-full flex items-center cursor-pointer rounded-xl transition-all duration-300
                 ${sidebarWidth >= 160 
                   ? 'justify-start px-4 py-3 bg-red-500/20 hover:bg-red-500/30' 
@@ -243,6 +252,7 @@ const SideBar = () => {
                       <Link
                         key={link.key}
                         href={link.href}
+                        onClick={() => setShowMoreOptions(false)}
                         className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                       >
                         <Image 
@@ -256,7 +266,16 @@ const SideBar = () => {
                       </Link>
                     ))}
                     <button
-                      onClick={() => signOut({ callbackUrl: "/login" })}
+                      onClick={async () => {
+                        try {
+                          await signOut({
+                            callbackUrl: '/bemvindo',
+                            redirect: true
+                          });
+                        } catch (error) {
+                          console.error('Erro ao fazer logout:', error);
+                        }
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-red-400"
                     >
                       <Image 
