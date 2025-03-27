@@ -10,22 +10,22 @@ const config = {
   		keyframes: {
   			draw: {
   				'0%': {
-  					strokeDasharray: '1500',
-  					strokeDashoffset: '1500',
+  					strokeDasharray: '2500',
+  					strokeDashoffset: '2500',
   					opacity: '0.3'
   				},
   				'50%': {
-  					opacity: '0.6'
+  					opacity: '0.7'
   				},
   				'100%': {
-  					strokeDasharray: '1500',
+  					strokeDasharray: '2500',
   					strokeDashoffset: '0',
   					opacity: '1'
   				}
   			}
   		},
   		animation: {
-  			'draw': 'draw 3s ease-in-out infinite alternate'
+  			'draw': 'draw 4s ease-in-out infinite alternate'
   		},
   		colors: {
   			background: 'hsl(var(--background))',
