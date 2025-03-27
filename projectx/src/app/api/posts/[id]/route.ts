@@ -56,6 +56,8 @@ export async function PUT(
         repoUrl: data.repoUrl,
         duration: data.duration,
         stars: data.stars,
+        startDate: data.startDate,
+        endDate: data.endDate,
       },
       include: {
         user: {

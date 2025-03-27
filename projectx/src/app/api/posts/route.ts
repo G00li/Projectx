@@ -47,6 +47,8 @@ export async function POST(req: Request) {
         repoUrl: data.repoUrl,
         duration: data.duration,
         stars: data.stars || 1,
+        startDate: data.startDate,
+        endDate: data.endDate,
       },
     });
 

@@ -1,3 +1,5 @@
+import { Post } from "@prisma/client";
+
 export const getPosts = async () => {
     try {
         console.log('Iniciando requisição para /api/posts');
@@ -32,20 +34,20 @@ export const getPosts = async () => {
 };
 
   
-  export const createPost = async (postData: any) => {
-    const response = await fetch('/api/posts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(postData),
-    });
-  
-    if (!response.ok) {
-      throw new Error('Erro ao criar post');
-    }
-  
-    return response.json();
+export const createPost = async (postData: Omit<Post, "createdAt">) => {
+  const response = await fetch('/api/posts', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(postData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao criar post');
+  }
+
+  return response.json();
 };
 
 export const deletePost = async (postId: string) => {

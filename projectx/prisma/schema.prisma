@@ -35,6 +35,8 @@ model Post {
   repoUrl     String
   duration    String
   stars       Int      @default(1)
+  startDate   DateTime
+  endDate     DateTime
   createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   likes       Like[]
