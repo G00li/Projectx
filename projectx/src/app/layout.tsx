@@ -9,6 +9,12 @@ import CookieConsent from "@/components/CookieConsent";
 import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
 import SideBar from "@/components/SideBar";
 import { useState, useEffect } from "react";
+import dynamic from 'next/dynamic';
+
+const GoogleAnalytics = dynamic(() => import('../components/GoogleAnalytics'), {
+  ssr: false,
+  loading: () => null
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,6 +32,9 @@ export default function RootLayout({
 
       <body className={`${inter.variable} antialiased pt-[61px]`}>
         <script defer src="https://cloud.umami.is/script.js" data-website-id="32bcc95d-cdca-4f1c-8025-ebc8ff9b0234"></script>
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
         <SessionProvider>
           <AuthWrapper>
             <SidebarProvider>

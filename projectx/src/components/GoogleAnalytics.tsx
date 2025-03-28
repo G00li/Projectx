@@ -1,48 +1,68 @@
 'use client';
 
-import Script from 'next/script'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
-import * as gtag from '@/lib/gtag'
+import Script from 'next/script';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface GoogleAnalyticsProps {
   measurementId: string;
 }
 
 export default function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
-  const router = useRouter()
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      gtag.pageview(url)
-    }
+    setMounted(true);
+  }, []);
 
-    router.events.on('routeChangeComplete', handleRouteChange)
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange)
+  useEffect(() => {
+    if (!mounted) return;
+
+    const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+    
+    if (typeof window.gtag === 'function') {
+      window.gtag('config', measurementId, {
+        page_path: url,
+        send_page_view: true,
+        debug_mode: true,
+        cookie_domain: 'gooli.pt',
+        cookie_flags: 'SameSite=None;Secure',
+        transport_url: 'https://www.google-analytics.com',
+        transport_type: 'beacon'
+      });
     }
-  }, [router.events])
+  }, [pathname, searchParams, measurementId, mounted]);
+
+  if (!mounted) return null;
 
   return (
     <>
+      {/* Google Analytics Base Script */}
       <Script
-        strategy="afterInteractive"
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-      />
-      <Script
-        id="google-analytics"
         strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${measurementId}', {
-              page_path: window.location.pathname,
-            });
-          `,
-        }}
+        crossOrigin="anonymous"
       />
+      
+      {/* Google Analytics Configuration */}
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${measurementId}', {
+            page_path: window.location.pathname,
+            send_page_view: true,
+            debug_mode: true,
+            cookie_domain: 'gooli.pt',
+            cookie_flags: 'SameSite=None;Secure',
+            transport_url: 'https://www.google-analytics.com',
+            transport_type: 'beacon'
+          });
+        `}
+      </Script>
     </>
-  )
+  );
 } 

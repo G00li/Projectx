@@ -13,7 +13,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { differenceInDays, differenceInMonths } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import SEO from '../../../components/SEO'
+import SEO from '@/components/SEO'
 
 export default function ViewAllPosts() {
   const { data: session, status } = useSession();

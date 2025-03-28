@@ -3,6 +3,52 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+const SearchIcon = () => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="text-gray-400"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const UserAvatar = ({ user }) => {
+  const getInitials = (name) => {
+    return name
+      ?.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase() || 'U';
+  };
+
+  const getAvatarUrl = (user) => {
+    if (user.image) return user.image;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(getInitials(user.name))}&background=random`;
+  };
+
+  return (
+    <div className="flex-shrink-0 w-12 h-12 relative rounded-full overflow-hidden bg-gray-700">
+      <Image
+        src={getAvatarUrl(user)}
+        alt={user.name || 'Usuário'}
+        fill
+        className="object-cover"
+        onError={(e) => {
+          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getInitials(user.name))}&background=random`;
+        }}
+      />
+    </div>
+  );
+};
+
 const UserSearch = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,13 +105,7 @@ const UserSearch = () => {
             {loading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
             ) : (
-              <Image
-                src="/icon/sidebar/search-icon.svg"
-                alt="Pesquisar"
-                width={20}
-                height={20}
-                className="text-gray-400"
-              />
+              <SearchIcon />
             )}
           </div>
         </div>
@@ -84,14 +124,7 @@ const UserSearch = () => {
             onClick={() => handleUserClick(user.id)}
             className="bg-gray-800 rounded-xl p-4 flex items-start space-x-4 hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
           >
-            <div className="flex-shrink-0 w-12 h-12 relative rounded-full overflow-hidden">
-              <Image
-                src={user.image || '/placeholder-user.jpg'}
-                alt={user.name || 'Usuário'}
-                fill
-                className="object-cover"
-              />
-            </div>
+            <UserAvatar user={user} />
             <div className="min-w-0 flex-1">
               <h3 className="text-white font-medium truncate">
                 {user.name || 'Usuário sem nome'}
