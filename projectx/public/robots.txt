@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Rotas privadas ou que não devem ser indexadas
+Disallow: /api/
+Disallow: /loginPage/
+
+# Sitemap
+Sitemap: https://gooli.pt/sitemap.xml 
