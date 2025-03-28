@@ -110,7 +110,7 @@ const SideBar = () => {
               onClick={async () => {
                 try {
                   await signOut({
-                    callbackUrl: '/bemvindo',
+                    callbackUrl: '/bemVindo',
                     redirect: true
                   });
                 } catch (error) {
@@ -269,7 +269,7 @@ const SideBar = () => {
                       onClick={async () => {
                         try {
                           await signOut({
-                            callbackUrl: '/bemvindo',
+                            callbackUrl: '/bemVindo',
                             redirect: true
                           });
                         } catch (error) {
