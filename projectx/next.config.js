@@ -51,6 +51,15 @@ const nextConfig = {
         destination: '/api/sitemap'
       }
     ]
+  },
+  async redirects() {
+    return [
+      {
+        source: '/google-analytics',
+        destination: 'https://www.google-analytics.com',
+        permanent: true,
+      },
+    ]
   }
 }
 

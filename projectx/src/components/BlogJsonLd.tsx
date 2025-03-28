@@ -1,17 +1,17 @@
 interface Post {
-  id: string;
   title: string;
   description: string;
-  createdAt: string;
-  updatedAt?: string;
-  image?: string;
   author: {
     name: string;
     image?: string;
   };
+  createdAt: string;
+  updatedAt?: string;
+  image?: string;
   language?: string;
   stars?: number;
   repoUrl?: string;
+  id: string;
 }
 
 export default function BlogJsonLd({ post }: { post: Post }) {
