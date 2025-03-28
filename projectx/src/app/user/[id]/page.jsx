@@ -22,6 +22,7 @@ export default function UserProfilePage() {
   const [error, setError] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [likedPostsMap, setLikedPostsMap] = useState({});
+  const [savedPostsMap, setSavedPostsMap] = useState({});
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [likeUsers, setLikeUsers] = useState([]);
 
@@ -164,28 +165,65 @@ export default function UserProfilePage() {
     }
   };
 
-  // Verifica o status dos likes quando os posts são carregados
+  // Verifica o status dos likes e salvamentos quando os posts são carregados
   useEffect(() => {
-    const checkLikes = async () => {
+    const checkPostsStatus = async () => {
       if (!session?.user) return;
       
       const allPosts = [...userPosts, ...likedPosts];
       const likes = {};
+      const saves = {};
       
       for (const post of allPosts) {
         try {
-          const response = await fetch(`/api/posts/${post.id}/likes`);
-          const data = await response.json();
-          likes[post.id] = data.users?.some(user => user.id === session.user.id) || false;
+          // Verifica likes
+          const likeResponse = await fetch(`/api/posts/${post.id}/likes`);
+          const likeData = await likeResponse.json();
+          likes[post.id] = likeData.users?.some(user => user.id === session.user.id) || false;
+
+          // Verifica salvamentos
+          const saveResponse = await fetch(`/api/posts/${post.id}/save`);
+          const saveData = await saveResponse.json();
+          saves[post.id] = saveData.saved;
         } catch (error) {
-          console.error(`Erro ao verificar like do post ${post.id}:`, error);
+          console.error(`Erro ao verificar status do post ${post.id}:`, error);
         }
       }
       setLikedPostsMap(likes);
+      setSavedPostsMap(saves);
     };
 
-    checkLikes();
+    checkPostsStatus();
   }, [userPosts, likedPosts, session]);
+
+  const handlePostSave = async (postId) => {
+    try {
+      if (!session?.user) {
+        toast.error('Você precisa estar logado para salvar posts');
+        return;
+      }
+
+      const response = await fetch(`/api/posts/${postId}/save`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao processar salvamento');
+      }
+
+      const data = await response.json();
+      
+      setSavedPostsMap(prev => ({
+        ...prev,
+        [postId]: data.saved
+      }));
+
+      toast.success(data.saved ? 'Post salvo! 🔖' : 'Post removido dos salvos! 📑');
+    } catch (error) {
+      console.error('Erro ao salvar post:', error);
+      toast.error('Erro ao processar salvamento');
+    }
+  };
 
   const handlePostEdit = (post, e) => {
     // Implementar lógica de edição se necessário
@@ -407,8 +445,10 @@ export default function UserProfilePage() {
                       onDelete={handlePostDelete}
                       onSelect={handlePostSelect}
                       onLike={handlePostLike}
+                      onSave={handlePostSave}
                       canEdit={session?.user?.id === post.userId}
                       isLiked={likedPostsMap[post.id] || false}
+                      isSaved={savedPostsMap[post.id] || false}
                     />
                   ))}
                 </div>
@@ -433,8 +473,10 @@ export default function UserProfilePage() {
                       onDelete={handlePostDelete}
                       onSelect={handlePostSelect}
                       onLike={handlePostLike}
+                      onSave={handlePostSave}
                       canEdit={session?.user?.id === post.userId}
                       isLiked={likedPostsMap[post.id] || false}
+                      isSaved={savedPostsMap[post.id] || false}
                     />
                   ))}
                 </div>
