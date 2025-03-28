@@ -11,7 +11,7 @@ import SideBar from "@/components/SideBar";
 import { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
 
-const GoogleAnalytics = dynamic(() => import('../components/GoogleAnalytics'), {
+const GoogleAnalytics = dynamic(() => import('../components/SEO/GoogleAnalytics'), {
   ssr: false,
   loading: () => null
 });

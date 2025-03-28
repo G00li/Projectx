@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
-import SEO from '@/components/SEO'
+import SEO from '@/components/SEO/SEO'
 
 export default async function HomePage() {
   const session = await getServerSession();
