@@ -1,6 +1,6 @@
 import { AppProps } from 'next/app'
 import { SessionProvider } from 'next-auth/react'
-import GoogleAnalytics from '@/components/GoogleAnalytics'
+import GoogleAnalytics from '@/components/SEO/GoogleAnalytics'
 import { Toaster } from 'react-hot-toast'
 import '@/styles/globals.css'
 

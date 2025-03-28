@@ -215,6 +215,8 @@ export default function MyPosts() {
                   onLike={handleLike}
                   isLiked={likedPosts[post.id] || false}
                   canEdit={true}
+                  onSave={() => {}}
+                  isSaved={false}
                 />
               ))}
             </div>

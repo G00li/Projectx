@@ -13,7 +13,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { differenceInDays, differenceInMonths } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import SEO from '@/components/SEO'
+import SEO from '@/components/SEO/SEO'
 
 export default function ViewAllPosts() {
   const { data: session, status } = useSession();
@@ -28,6 +28,7 @@ export default function ViewAllPosts() {
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState<number>(0);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [likedPosts, setLikedPosts] = useState<Record<string, boolean>>({});
+  const [savedPosts, setSavedPosts] = useState<Record<string, boolean>>({});
   const [showLikesModal, setShowLikesModal] = useState<boolean>(false);
   const [likeUsers, setLikeUsers] = useState<Array<{ id: string; name: string; image: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -409,6 +410,77 @@ export default function ViewAllPosts() {
     }
   };
 
+  const handleSave = async (postId: string) => {
+    try {
+      if (!session?.user) {
+        toast.error('Você precisa estar logado para salvar posts');
+        return;
+      }
+
+      const response = await fetch(`/api/posts/${postId}/save`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Erro ao processar salvamento');
+      }
+
+      const data = await response.json();
+      
+      setSavedPosts(prev => ({
+        ...prev,
+        [postId]: data.saved
+      }));
+
+      toast.success(data.saved ? 'Post salvo! 🔖' : 'Post removido dos salvos! 📑');
+    } catch (error) {
+      console.error('Erro ao salvar post:', error);
+      toast.error('Erro ao processar salvamento');
+    }
+  };
+
+  const checkSaveStatus = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/save`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao verificar status do salvamento');
+      }
+
+      const data = await response.json();
+      return data.saved;
+    } catch (error) {
+      console.error('Erro ao verificar status do salvamento:', error);
+      return false;
+    }
+  };
+
+  const checkAllSaves = async () => {
+    try {
+      if (!session?.user) return;
+
+      const saveStatuses: Record<string, boolean> = {};
+      for (const post of posts) {
+        const isSaved = await checkSaveStatus(post.id);
+        saveStatuses[post.id] = isSaved;
+      }
+      setSavedPosts(saveStatuses);
+    } catch (error) {
+      console.error('Erro ao verificar salvamentos:', error);
+    }
+  };
+
+  // Adicione este useEffect para verificar os salvamentos quando os posts são carregados
+  useEffect(() => {
+    if (posts.length > 0 && session?.user) {
+      checkAllSaves();
+    }
+  }, [posts, session]);
+
   return (
     <>
       <SEO 
@@ -438,7 +510,9 @@ export default function ViewAllPosts() {
                     onDelete={(id, e) => handleDelete(id, e)}
                     onSelect={handlePostClick}
                     onLike={handleLike}
+                    onSave={handleSave}
                     isLiked={likedPosts[post.id] || false}
+                    isSaved={savedPosts[post.id] || false}
                     canEdit={session?.user?.id === post.userId}
                   />
                 ))}
